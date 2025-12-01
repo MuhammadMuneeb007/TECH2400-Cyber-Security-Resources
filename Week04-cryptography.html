@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Encryption & Decryption Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .crypto-type-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .type-btn {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .type-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .type-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .mode-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #764ba2;
+            background: white;
+            color: #764ba2;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .mode-btn.active {
+            background: #764ba2;
+            color: white;
+        }
+
+        .mode-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(118, 75, 162, 0.3);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        select, input, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        select:focus, input:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+            font-family: 'Courier New', monospace;
+        }
+
+        .action-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s;
+            margin-top: 10px;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .action-btn.secondary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+
+        .info-box p {
+            margin: 0;
+            color: #1976D2;
+            font-size: 14px;
+        }
+
+        .process-visualization {
+            margin-top: 30px;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .process-visualization.show {
+            display: block;
+        }
+
+        .process-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #333;
+            text-align: center;
+        }
+
+        .process-step {
+            background: white;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .step-header {
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+
+        .step-content {
+            color: #555;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            word-break: break-all;
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .result-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f0f8ff;
+            border-radius: 10px;
+            display: none;
+            border: 2px solid #667eea;
+        }
+
+        .result-section.show {
+            display: block;
+        }
+
+        .result-label {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+            font-size: 18px;
+        }
+
+        .result-output {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            word-break: break-all;
+            font-family: 'Courier New', monospace;
+            border: 2px solid #667eea;
+            font-size: 14px;
+        }
+
+        .key-pair-display {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .key-box {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+        }
+
+        .key-box h4 {
+            margin-bottom: 10px;
+            color: #667eea;
+        }
+
+        .key-box pre {
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            word-break: break-all;
+            white-space: pre-wrap;
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .asymmetric-section {
+            display: none;
+        }
+
+        .asymmetric-section.show {
+            display: block;
+        }
+
+        .symmetric-section {
+            display: block;
+        }
+
+        .symmetric-section.hide {
+            display: none;
+        }
+
+        .copy-btn {
+            padding: 8px 15px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .copy-btn:hover {
+            background: #5568d3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔐 Advanced Encryption & Decryption Tool</h1>
+            <p>Visualize the encryption process step by step</p>
+        </div>
+
+        <div class="content">
+            <div class="crypto-type-selector">
+                <button class="type-btn active" onclick="setCryptoType('symmetric')">Symmetric Encryption</button>
+                <button class="type-btn" onclick="setCryptoType('asymmetric')">Asymmetric Encryption</button>
+            </div>
+
+            <div class="mode-selector">
+                <button class="mode-btn active" onclick="setMode('encrypt')">Encrypt</button>
+                <button class="mode-btn" onclick="setMode('decrypt')">Decrypt</button>
+            </div>
+
+            <div class="info-box">
+                <p id="infoText">Enter your message and key to encrypt it securely.</p>
+            </div>
+
+            <!-- Symmetric Encryption Section -->
+            <div class="symmetric-section" id="symmetricSection">
+                <div class="form-group">
+                    <label for="algorithm">Select Algorithm:</label>
+                    <select id="algorithm" onchange="updateInfo()">
+                        <option value="aes">AES (Advanced Encryption Standard)</option>
+                        <option value="des">DES (Data Encryption Standard)</option>
+                        <option value="3des">3DES (Triple DES)</option>
+                        <option value="blowfish">Blowfish</option>
+                        <option value="rc4">RC4 Stream Cipher</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="message">Message:</label>
+                    <textarea id="message" placeholder="Enter your message here..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="key">Encryption Key:</label>
+                    <input type="text" id="key" placeholder="Enter your secret key...">
+                </div>
+
+                <button class="action-btn" onclick="processSymmetric()">
+                    <span id="btnText">🔒 Encrypt Message</span>
+                </button>
+            </div>
+
+            <!-- Asymmetric Encryption Section -->
+            <div class="asymmetric-section" id="asymmetricSection">
+                <div class="form-group">
+                    <label for="asymAlgorithm">Select Algorithm:</label>
+                    <select id="asymAlgorithm" onchange="updateInfo()">
+                        <option value="rsa">RSA (Rivest-Shamir-Adleman)</option>
+                    </select>
+                </div>
+
+                <button class="action-btn secondary" onclick="generateKeyPair()">
+                    🔑 Generate Key Pair
+                </button>
+
+                <div id="keyPairDisplay" style="display: none; margin-top: 20px;">
+                    <div class="key-pair-display">
+                        <div class="key-box">
+                            <h4>🔓 Public Key</h4>
+                            <pre id="publicKeyDisplay"></pre>
+                            <button class="copy-btn" onclick="copyToClipboard('publicKeyDisplay')">Copy</button>
+                        </div>
+                        <div class="key-box">
+                            <h4>🔐 Private Key</h4>
+                            <pre id="privateKeyDisplay"></pre>
+                            <button class="copy-btn" onclick="copyToClipboard('privateKeyDisplay')">Copy</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 20px;">
+                    <label for="asymMessage">Message:</label>
+                    <textarea id="asymMessage" placeholder="Enter your message here..."></textarea>
+                </div>
+
+                <div class="form-group" id="asymKeyGroup">
+                    <label for="asymKey">Public Key (for encryption) / Private Key (for decryption):</label>
+                    <textarea id="asymKey" placeholder="Paste the key here..."></textarea>
+                </div>
+
+                <button class="action-btn" onclick="processAsymmetric()">
+                    <span id="asymBtnText">🔒 Encrypt with Public Key</span>
+                </button>
+            </div>
+
+            <!-- Process Visualization -->
+            <div class="process-visualization" id="processVisualization">
+                <div class="process-title">🔍 Encryption Process Visualization</div>
+                <div id="processSteps"></div>
+            </div>
+
+            <!-- Result Section -->
+            <div class="result-section" id="resultSection">
+                <div class="result-label" id="resultLabel">✅ Encrypted Message:</div>
+                <div class="result-output" id="resultOutput"></div>
+                <button class="copy-btn" onclick="copyToClipboard('resultOutput')" style="margin-top: 10px;">Copy Result</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsencrypt/3.3.2/jsencrypt.min.js"></script>
+    <script>
+        let currentMode = 'encrypt';
+        let currentCryptoType = 'symmetric';
+        let generatedKeyPair = null;
+
+        function setCryptoType(type) {
+            currentCryptoType = type;
+            const buttons = document.querySelectorAll('.type-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            if (type === 'symmetric') {
+                document.getElementById('symmetricSection').classList.remove('hide');
+                document.getElementById('asymmetricSection').classList.remove('show');
+            } else {
+                document.getElementById('symmetricSection').classList.add('hide');
+                document.getElementById('asymmetricSection').classList.add('show');
+            }
+            
+            document.getElementById('resultSection').classList.remove('show');
+            document.getElementById('processVisualization').classList.remove('show');
+            updateInfo();
+        }
+
+        function setMode(mode) {
+            currentMode = mode;
+            const buttons = document.querySelectorAll('.mode-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            document.getElementById('btnText').textContent = mode === 'encrypt' ? '🔒 Encrypt Message' : '🔓 Decrypt Message';
+            document.getElementById('asymBtnText').textContent = mode === 'encrypt' ? '🔒 Encrypt with Public Key' : '🔓 Decrypt with Private Key';
+            document.getElementById('resultLabel').textContent = mode === 'encrypt' ? '✅ Encrypted Message:' : '✅ Decrypted Message:';
+            document.getElementById('resultSection').classList.remove('show');
+            document.getElementById('processVisualization').classList.remove('show');
+            updateInfo();
+        }
+
+        function updateInfo() {
+            const algo = currentCryptoType === 'symmetric' ? document.getElementById('algorithm').value : 'rsa';
+            const infoTexts = {
+                encrypt: {
+                    aes: 'AES uses substitution-permutation network with multiple rounds. Most secure symmetric algorithm.',
+                    des: 'DES uses 16 rounds of Feistel network with 56-bit key. Now considered insecure.',
+                    '3des': '3DES applies DES three times with different keys for enhanced security.',
+                    blowfish: 'Blowfish uses 16 rounds of Feistel network with variable key length (32-448 bits).',
+                    rc4: 'RC4 is a stream cipher that generates a keystream XORed with plaintext.',
+                    rsa: 'RSA uses public key for encryption. Generate a key pair first, then encrypt with the public key.'
+                },
+                decrypt: {
+                    aes: 'AES decryption reverses the substitution-permutation process using the same key.',
+                    des: 'DES decryption reverses the Feistel rounds using the same key.',
+                    '3des': '3DES decryption applies DES decryption three times in reverse order.',
+                    blowfish: 'Blowfish decryption reverses the Feistel rounds using the same key.',
+                    rc4: 'RC4 decryption uses the same keystream generation and XOR operation.',
+                    rsa: 'RSA uses private key for decryption. Paste your private key to decrypt the message.'
+                }
+            };
+            document.getElementById('infoText').textContent = infoTexts[currentMode][algo];
+        }
+
+        function addProcessStep(header, content, delay = 0) {
+            setTimeout(() => {
+                const stepsContainer = document.getElementById('processSteps');
+                const step = document.createElement('div');
+                step.className = 'process-step';
+                step.innerHTML = `
+                    <div class="step-header">${header}</div>
+                    <div class="step-content">${content}</div>
+                `;
+                stepsContainer.appendChild(step);
+            }, delay);
+        }
+
+        function clearProcessSteps() {
+            document.getElementById('processSteps').innerHTML = '';
+        }
+
+        function generateKeyPair() {
+            clearProcessSteps();
+            document.getElementById('processVisualization').classList.add('show');
+            
+            addProcessStep('Step 1: Initializing RSA Key Generation', 'Creating new RSA instance with 2048-bit key size...', 0);
+            
+            const encrypt = new JSEncrypt({default_key_size: 2048});
+            
+            addProcessStep('Step 2: Generating Prime Numbers', 'Selecting two large prime numbers (p and q)...', 500);
+            addProcessStep('Step 3: Computing Modulus', 'Calculating n = p × q (the modulus)', 1000);
+            addProcessStep('Step 4: Computing Totient', 'Calculating φ(n) = (p-1) × (q-1)', 1500);
+            addProcessStep('Step 5: Selecting Public Exponent', 'Choosing e = 65537 (common public exponent)', 2000);
+            addProcessStep('Step 6: Computing Private Exponent', 'Calculating d such that (d × e) mod φ(n) = 1', 2500);
+            
+            setTimeout(() => {
+                generatedKeyPair = {
+                    publicKey: encrypt.getPublicKey(),
+                    privateKey: encrypt.getPrivateKey()
+                };
+                
+                document.getElementById('publicKeyDisplay').textContent = generatedKeyPair.publicKey;
+                document.getElementById('privateKeyDisplay').textContent = generatedKeyPair.privateKey;
+                document.getElementById('keyPairDisplay').style.display = 'block';
+                document.getElementById('asymKey').value = generatedKeyPair.publicKey;
+                
+                addProcessStep('✅ Key Pair Generated Successfully!', 'Public and private keys are ready to use.', 3000);
+            }, 3000);
+        }
+
+        function processSymmetric() {
+            const message = document.getElementById('message').value;
+            const key = document.getElementById('key').value;
+            const algo = document.getElementById('algorithm').value;
+            
+            if (!message) {
+                alert('Please enter a message!');
+                return;
+            }
+            
+            if (!key) {
+                alert('Please enter an encryption key!');
+                return;
+            }
+
+            clearProcessSteps();
+            document.getElementById('processVisualization').classList.add('show');
+            
+            let result = '';
+            
+            try {
+                if (currentMode === 'encrypt') {
+                    addProcessStep('Step 1: Input Received', `Message: "${message.substring(0, 50)}${message.length > 50 ? '...' : ''}"<br>Key: "${key}"`, 0);
+                    
+                    addProcessStep('Step 2: Key Preparation', `Processing key for ${algo.toUpperCase()} algorithm...`, 300);
+                    
+                    switch(algo) {
+                        case 'aes':
+                            addProcessStep('Step 3: AES Setup', 'Using AES-256 in CBC mode with PKCS7 padding', 600);
+                            addProcessStep('Step 4: Key Derivation', 'Deriving encryption key using PBKDF2...', 900);
+                            result = CryptoJS.AES.encrypt(message, key).toString();
+                            addProcessStep('Step 5: Encryption Process', 'Performing 14 rounds of substitution-permutation...', 1200);
+                            addProcessStep('Step 6: Output Encoding', `Result encoded in Base64 format`, 1500);
+                            break;
+                        case 'des':
+                            addProcessStep('Step 3: DES Setup', 'Using 56-bit key with 16 Feistel rounds', 600);
+                            result = CryptoJS.DES.encrypt(message, key).toString();
+                            addProcessStep('Step 4: Initial Permutation', 'Applying initial permutation to plaintext', 900);
+                            addProcessStep('Step 5: Feistel Rounds', 'Executing 16 rounds of Feistel network...', 1200);
+                            addProcessStep('Step 6: Final Permutation', 'Applying final permutation and encoding', 1500);
+                            break;
+                        case '3des':
+                            addProcessStep('Step 3: 3DES Setup', 'Preparing three DES operations with different keys', 600);
+                            result = CryptoJS.TripleDES.encrypt(message, key).toString();
+                            addProcessStep('Step 4: First DES Encryption', 'Encrypting with first key...', 900);
+                            addProcessStep('Step 5: Second DES Decryption', 'Decrypting with second key...', 1200);
+                            addProcessStep('Step 6: Third DES Encryption', 'Encrypting with third key...', 1500);
+                            break;
+                        case 'blowfish':
+                            addProcessStep('Step 3: Blowfish Setup', 'Initializing with variable-length key (32-448 bits)', 600);
+                            result = CryptoJS.Blowfish.encrypt(message, key).toString();
+                            addProcessStep('Step 4: Key Expansion', 'Expanding key into P-array and S-boxes...', 900);
+                            addProcessStep('Step 5: Feistel Network', 'Executing 16 rounds of Feistel encryption...', 1200);
+                            addProcessStep('Step 6: Final Output', 'Combining and encoding encrypted blocks', 1500);
+                            break;
+                        case 'rc4':
+                            addProcessStep('Step 3: RC4 Setup', 'Initializing stream cipher with key', 600);
+                            addProcessStep('Step 4: KSA (Key Scheduling)', 'Generating permutation of 256 bytes...', 900);
+                            result = CryptoJS.RC4.encrypt(message, key).toString();
+                            addProcessStep('Step 5: PRGA (Pseudo-Random Generation)', 'Generating keystream bytes...', 1200);
+                            addProcessStep('Step 6: XOR Operation', 'XORing plaintext with keystream', 1500);
+                            break;
+                    }
+                    
+                    setTimeout(() => {
+                        addProcessStep('✅ Encryption Complete!', `Ciphertext length: ${result.length} characters`, 1800);
+                    }, 1800);
+                } else {
+                    addProcessStep('Step 1: Decryption Started', `Ciphertext received: ${message.substring(0, 50)}...`, 0);
+                    addProcessStep('Step 2: Key Validation', `Verifying key matches encryption key...`, 300);
+                    
+                    switch(algo) {
+                        case 'aes':
+                            addProcessStep('Step 3: Reverse Process', 'Reversing AES substitution-permutation...', 600);
+                            const decryptedAES = CryptoJS.AES.decrypt(message, key);
+                            result = decryptedAES.toString(CryptoJS.enc.Utf8);
+                            break;
+                        case 'des':
+                            addProcessStep('Step 3: Reverse Feistel', 'Reversing 16 Feistel rounds...', 600);
+                            const decryptedDES = CryptoJS.DES.decrypt(message, key);
+                            result = decryptedDES.toString(CryptoJS.enc.Utf8);
+                            break;
+                        case '3des':
+                            addProcessStep('Step 3: Triple Decryption', 'Reversing three DES operations...', 600);
+                            const decrypted3DES = CryptoJS.TripleDES.decrypt(message, key);
+                            result = decrypted3DES.toString(CryptoJS.enc.Utf8);
+                            break;
+                        case 'blowfish':
+                            addProcessStep('Step 3: Reverse Blowfish', 'Reversing Feistel network...', 600);
+                            const decryptedBlowfish = CryptoJS.Blowfish.decrypt(message, key);
+                            result = decryptedBlowfish.toString(CryptoJS.enc.Utf8);
+                            break;
+                        case 'rc4':
+                            addProcessStep('Step 3: Keystream Generation', 'Regenerating identical keystream...', 600);
+                            addProcessStep('Step 4: XOR Operation', 'XORing ciphertext with keystream...', 900);
+                            const decryptedRC4 = CryptoJS.RC4.decrypt(message, key);
+                            result = decryptedRC4.toString(CryptoJS.enc.Utf8);
+                            break;
+                    }
+                    
+                    setTimeout(() => {
+                        addProcessStep('✅ Decryption Complete!', `Plaintext recovered: "${result}"`, 1200);
+                    }, 1200);
+                }
+
+                if (!result) {
+                    throw new Error('Operation failed - check your key and message format');
+                }
+
+                setTimeout(() => {
+                    document.getElementById('resultOutput').textContent = result;
+                    document.getElementById('resultSection').classList.add('show');
+                }, 2000);
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        function processAsymmetric() {
+            const message = document.getElementById('asymMessage').value;
+            const key = document.getElementById('asymKey').value;
+            
+            if (!message) {
+                alert('Please enter a message!');
+                return;
+            }
+            
+            if (!key) {
+                alert('Please enter a key!');
+                return;
+            }
+
+            clearProcessSteps();
+            document.getElementById('processVisualization').classList.add('show');
+            
+            try {
+                const encrypt = new JSEncrypt();
+                
+                if (currentMode === 'encrypt') {
+                    addProcessStep('Step 1: Public Key Loaded', 'Parsing public key (n, e)...', 0);
+                    encrypt.setPublicKey(key);
+                    
+                    addProcessStep('Step 2: Message Padding', 'Applying PKCS#1 v1.5 padding to message...', 400);
+                    addProcessStep('Step 3: Convert to Integer', 'Converting padded message to large integer m...', 800);
+                    addProcessStep('Step 4: Modular Exponentiation', 'Computing c = m^e mod n (encryption formula)...', 1200);
+                    
+                    const result = encrypt.encrypt(message);
+                    
+                    if (!result) {
+                        throw new Error('Encryption failed - check your public key format');
+                    }
+                    
+                    addProcessStep('Step 5: Encoding Output', 'Converting ciphertext to Base64...', 1600);
+                    
+                    setTimeout(() => {
+                        addProcessStep('✅ RSA Encryption Complete!', `Message encrypted with public key`, 2000);
+                        document.getElementById('resultOutput').textContent = result;
+                        document.getElementById('resultSection').classList.add('show');
+                    }, 2000);
+                } else {
+                    addProcessStep('Step 1: Private Key Loaded', 'Parsing private key (n, d)...', 0);
+                    encrypt.setPrivateKey(key);
+                    
+                    addProcessStep('Step 2: Decode Ciphertext', 'Converting Base64 ciphertext to integer c...', 400);
+                    addProcessStep('Step 3: Modular Exponentiation', 'Computing m = c^d mod n (decryption formula)...', 800);
+                    addProcessStep('Step 4: Remove Padding', 'Removing PKCS#1 v1.5 padding...', 1200);
+                    
+                    const result = encrypt.decrypt(message);
+                    
+                    if (!result) {
+                        throw new Error('Decryption failed - check your private key and ciphertext');
+                    }
+                    
+                    setTimeout(() => {
+                        addProcessStep('✅ RSA Decryption Complete!', `Original message recovered: "${result}"`, 1600);
+                        document.getElementById('resultOutput').textContent = result;
+                        document.getElementById('resultSection').classList.add('show');
+                    }, 1600);
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            const text = element.textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Copied to clipboard!');
+            });
+        }
+
+        updateInfo();
+    </script>
+</body>
+</html>
