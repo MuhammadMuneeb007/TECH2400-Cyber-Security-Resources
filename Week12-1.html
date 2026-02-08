@@ -1,0 +1,1590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OWASP Top 10 - Animated Guide</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0a0a0f;
+            --bg-card: #12121a;
+            --neon-red: #ff3366;
+            --neon-cyan: #00ffff;
+            --neon-green: #00ff88;
+            --neon-yellow: #ffff00;
+            --neon-purple: #aa00ff;
+            --neon-orange: #ff6600;
+            --text-primary: #ffffff;
+            --text-secondary: #8888aa;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* Animated background grid */
+        .bg-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridMove 20s linear infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        /* Scanline effect */
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.1) 0px,
+                rgba(0, 0, 0, 0.1) 1px,
+                transparent 1px,
+                transparent 2px
+            );
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        /* Main container */
+        .container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            z-index: 1;
+        }
+
+        /* Slide container */
+        .slides-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.6s ease, visibility 0.6s ease;
+            padding: 40px;
+        }
+
+        .slide.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Title slide */
+        .title-slide {
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .title-slide h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 5rem;
+            font-weight: 900;
+            letter-spacing: 0.3em;
+            color: var(--neon-red);
+            text-shadow: 
+                0 0 10px var(--neon-red),
+                0 0 20px var(--neon-red),
+                0 0 40px var(--neon-red);
+            animation: titlePulse 2s ease-in-out infinite;
+        }
+
+        @keyframes titlePulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        .title-slide h2 {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.5rem;
+            color: var(--neon-cyan);
+            margin-top: 20px;
+            letter-spacing: 0.2em;
+        }
+
+        .title-slide .subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-top: 40px;
+            max-width: 600px;
+        }
+
+        /* Content slides */
+        .content-slide {
+            display: flex;
+            gap: 60px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .slide-info {
+            flex: 1;
+            max-width: 500px;
+        }
+
+        .slide-number {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 6rem;
+            font-weight: 900;
+            opacity: 0.15;
+            position: absolute;
+            top: 20px;
+            left: 40px;
+        }
+
+        .slide-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .slide-title .icon {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            font-size: 1.5rem;
+        }
+
+        .slide-description {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+        }
+
+        .slide-example {
+            background: rgba(0, 255, 255, 0.05);
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+        }
+
+        .slide-example-title {
+            color: var(--neon-cyan);
+            font-size: 0.8rem;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        /* Animation container */
+        .animation-container {
+            flex: 1;
+            max-width: 550px;
+            height: 400px;
+            background: var(--bg-card);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Navigation */
+        .nav-container {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 100;
+        }
+
+        .nav-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-dot.active {
+            background: var(--neon-cyan);
+            box-shadow: 0 0 10px var(--neon-cyan);
+        }
+
+        .nav-dot:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .nav-arrows {
+            position: fixed;
+            bottom: 30px;
+            right: 40px;
+            display: flex;
+            gap: 15px;
+            z-index: 100;
+        }
+
+        .nav-arrow {
+            width: 50px;
+            height: 50px;
+            border: 2px solid var(--neon-cyan);
+            background: transparent;
+            color: var(--neon-cyan);
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-arrow:hover {
+            background: var(--neon-cyan);
+            color: var(--bg-dark);
+            box-shadow: 0 0 20px var(--neon-cyan);
+        }
+
+        /* Progress bar */
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple));
+            z-index: 1001;
+            transition: width 0.3s ease;
+        }
+
+        /* Animation styles for each vulnerability */
+
+        /* 1. Broken Access Control Animation */
+        .anim-access {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            gap: 30px;
+        }
+
+        .access-doors {
+            display: flex;
+            gap: 20px;
+        }
+
+        .door {
+            width: 80px;
+            height: 120px;
+            background: linear-gradient(180deg, #2a2a3a 0%, #1a1a2a 100%);
+            border-radius: 8px 8px 0 0;
+            position: relative;
+            border: 2px solid #3a3a4a;
+        }
+
+        .door::before {
+            content: '';
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--neon-red);
+            box-shadow: 0 0 10px var(--neon-red);
+        }
+
+        .door.unlocked::before {
+            background: var(--neon-green);
+            box-shadow: 0 0 10px var(--neon-green);
+        }
+
+        .door-label {
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+
+        .hacker-icon {
+            font-size: 2rem;
+            animation: hackerMove 3s ease-in-out infinite;
+        }
+
+        @keyframes hackerMove {
+            0%, 100% { transform: translateX(-100px); }
+            50% { transform: translateX(100px); }
+        }
+
+        .access-warning {
+            color: var(--neon-red);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            animation: blink 1s step-end infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        /* 2. Cryptographic Failures Animation */
+        .anim-crypto {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            gap: 20px;
+        }
+
+        .crypto-flow {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .crypto-box {
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+        }
+
+        .plaintext {
+            background: rgba(255, 51, 102, 0.2);
+            border: 1px solid var(--neon-red);
+            color: var(--neon-red);
+        }
+
+        .encrypted {
+            background: rgba(0, 255, 136, 0.2);
+            border: 1px solid var(--neon-green);
+            color: var(--neon-green);
+        }
+
+        .weak-encrypted {
+            background: rgba(255, 102, 0, 0.2);
+            border: 1px solid var(--neon-orange);
+            color: var(--neon-orange);
+            text-decoration: line-through;
+        }
+
+        .crypto-arrow {
+            color: var(--neon-cyan);
+            font-size: 1.5rem;
+            animation: arrowPulse 1s ease-in-out infinite;
+        }
+
+        @keyframes arrowPulse {
+            0%, 100% { opacity: 0.5; transform: translateX(0); }
+            50% { opacity: 1; transform: translateX(5px); }
+        }
+
+        .broken-lock {
+            font-size: 3rem;
+            animation: shake 0.5s ease-in-out infinite;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-5deg); }
+            75% { transform: rotate(5deg); }
+        }
+
+        /* 3. Injection Animation */
+        .anim-injection {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            gap: 25px;
+            padding: 20px;
+        }
+
+        .injection-input {
+            width: 90%;
+            background: #1a1a2a;
+            border: 2px solid #3a3a4a;
+            border-radius: 8px;
+            padding: 15px;
+            position: relative;
+        }
+
+        .injection-input::before {
+            content: 'Search:';
+            position: absolute;
+            top: -10px;
+            left: 15px;
+            background: var(--bg-card);
+            padding: 0 5px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .injection-text {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--neon-red);
+            overflow: hidden;
+            white-space: nowrap;
+            animation: typeInjection 4s steps(40) infinite;
+        }
+
+        @keyframes typeInjection {
+            0%, 100% { width: 0; }
+            50%, 90% { width: 100%; }
+        }
+
+        .db-container {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .database {
+            width: 80px;
+            height: 100px;
+            background: linear-gradient(180deg, #2a4a6a 0%, #1a3a5a 100%);
+            border-radius: 10px;
+            position: relative;
+            border: 2px solid #3a5a7a;
+        }
+
+        .database::before {
+            content: '🗄️';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2rem;
+        }
+
+        .data-leak {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            animation: leakData 2s ease-in-out infinite;
+        }
+
+        @keyframes leakData {
+            0%, 100% { opacity: 0.3; transform: translateX(0); }
+            50% { opacity: 1; transform: translateX(10px); }
+        }
+
+        .leaked-row {
+            background: rgba(255, 51, 102, 0.3);
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--neon-red);
+        }
+
+        /* 4. Insecure Design Animation */
+        .anim-design {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            gap: 30px;
+        }
+
+        .blueprint {
+            width: 200px;
+            height: 150px;
+            background: rgba(0, 100, 200, 0.1);
+            border: 2px dashed rgba(0, 150, 255, 0.5);
+            border-radius: 10px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .blueprint-icon {
+            font-size: 3rem;
+            opacity: 0.5;
+        }
+
+        .design-flaws {
+            display: flex;
+            gap: 15px;
+        }
+
+        .flaw {
+            padding: 10px 15px;
+            background: rgba(255, 51, 102, 0.2);
+            border: 1px solid var(--neon-red);
+            border-radius: 8px;
+            font-size: 0.8rem;
+            color: var(--neon-red);
+            animation: flawPulse 2s ease-in-out infinite;
+        }
+
+        .flaw:nth-child(2) { animation-delay: 0.3s; }
+        .flaw:nth-child(3) { animation-delay: 0.6s; }
+
+        @keyframes flawPulse {
+            0%, 100% { transform: scale(1); opacity: 0.7; }
+            50% { transform: scale(1.05); opacity: 1; }
+        }
+
+        /* 5. Security Misconfiguration Animation */
+        .anim-misconfig {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            gap: 20px;
+        }
+
+        .server-rack {
+            display: flex;
+            gap: 15px;
+        }
+
+        .server {
+            width: 70px;
+            height: 100px;
+            background: linear-gradient(180deg, #2a2a3a 0%, #1a1a2a 100%);
+            border-radius: 8px;
+            border: 2px solid #3a3a4a;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 15px;
+            gap: 8px;
+        }
+
+        .server-light {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--neon-green);
+            box-shadow: 0 0 10px var(--neon-green);
+        }
+
+        .server.misconfigured .server-light {
+            background: var(--neon-orange);
+            box-shadow: 0 0 10px var(--neon-orange);
+            animation: blink 0.5s step-end infinite;
+        }
+
+        .config-panel {
+            background: #1a1a2a;
+            border: 1px solid #3a3a4a;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+        }
+
+        .config-line {
+            margin: 5px 0;
+        }
+
+        .config-bad {
+            color: var(--neon-red);
+        }
+
+        .config-good {
+            color: var(--neon-green);
+        }
+
+        /* 6. Vulnerable Components Animation */
+        .anim-components {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            gap: 25px;
+        }
+
+        .package-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .package {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 10px 20px;
+            background: #1a1a2a;
+            border-radius: 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+        }
+
+        .package-name {
+            color: var(--text-primary);
+        }
+
+        .package-version {
+            color: var(--text-secondary);
+        }
+
+        .package-status {
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+        }
+
+        .status-vulnerable {
+            background: rgba(255, 51, 102, 0.3);
+            color: var(--neon-red);
+            animation: statusPulse 1s ease-in-out infinite;
+        }
+
+        .status-outdated {
+            background: rgba(255, 102, 0, 0.3);
+            color: var(--neon-orange);
+        }
+
+        .status-ok {
+            background: rgba(0, 255, 136, 0.3);
+            color: var(--neon-green);
+        }
+
+        @keyframes statusPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* 7. Authentication Failures Animation */
+        .anim-auth {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            gap: 25px;
+        }
+
+        .login-form {
+            background: #1a1a2a;
+            border: 1px solid #3a3a4a;
+            border-radius: 12px;
+            padding: 25px;
+            width: 250px;
+        }
+
+        .form-field {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px;
+            background: #2a2a3a;
+            border: 1px solid #4a4a5a;
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+        }
+
+        .weak-password {
+            border-color: var(--neon-red) !important;
+        }
+
+        .password-strength {
+            height: 4px;
+            background: #2a2a3a;
+            border-radius: 2px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .strength-bar {
+            height: 100%;
+            width: 20%;
+            background: var(--neon-red);
+            animation: strengthWeak 2s ease-in-out infinite;
+        }
+
+        @keyframes strengthWeak {
+            0%, 100% { width: 20%; background: var(--neon-red); }
+            50% { width: 25%; background: var(--neon-orange); }
+        }
+
+        .brute-force {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--neon-cyan);
+            animation: bruteForce 0.1s step-end infinite;
+        }
+
+        @keyframes bruteForce {
+            0% { content: 'Attempt #1847'; }
+            50% { content: 'Attempt #1848'; }
+        }
+
+        /* 8. Software Integrity Animation */
+        .anim-integrity {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            gap: 20px;
+        }
+
+        .pipeline {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .pipeline-stage {
+            width: 80px;
+            height: 80px;
+            background: #1a1a2a;
+            border: 2px solid #3a3a4a;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            font-size: 0.7rem;
+        }
+
+        .pipeline-stage.compromised {
+            border-color: var(--neon-red);
+            background: rgba(255, 51, 102, 0.1);
+        }
+
+        .pipeline-stage.compromised .stage-icon {
+            color: var(--neon-red);
+        }
+
+        .stage-icon {
+            font-size: 1.5rem;
+        }
+
+        .pipeline-arrow {
+            color: var(--neon-cyan);
+            font-size: 1.2rem;
+        }
+
+        .integrity-warning {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            background: rgba(255, 51, 102, 0.2);
+            border: 1px solid var(--neon-red);
+            border-radius: 8px;
+            color: var(--neon-red);
+            font-size: 0.85rem;
+            animation: warningPulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes warningPulse {
+            0%, 100% { box-shadow: 0 0 0 rgba(255, 51, 102, 0); }
+            50% { box-shadow: 0 0 20px rgba(255, 51, 102, 0.5); }
+        }
+
+        /* 9. Logging Failures Animation */
+        .anim-logging {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            gap: 20px;
+        }
+
+        .log-terminal {
+            width: 90%;
+            background: #0a0a0f;
+            border: 1px solid #2a2a3a;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+        }
+
+        .log-line {
+            margin: 5px 0;
+            opacity: 0;
+            animation: logAppear 4s ease-in-out infinite;
+        }
+
+        .log-line:nth-child(1) { animation-delay: 0s; }
+        .log-line:nth-child(2) { animation-delay: 0.5s; }
+        .log-line:nth-child(3) { animation-delay: 1s; }
+        .log-line:nth-child(4) { animation-delay: 1.5s; }
+
+        @keyframes logAppear {
+            0%, 100% { opacity: 0; }
+            20%, 80% { opacity: 1; }
+        }
+
+        .log-timestamp {
+            color: var(--text-secondary);
+        }
+
+        .log-info {
+            color: var(--neon-cyan);
+        }
+
+        .log-warn {
+            color: var(--neon-orange);
+        }
+
+        .log-error {
+            color: var(--neon-red);
+        }
+
+        .log-missing {
+            color: var(--neon-red);
+            font-style: italic;
+        }
+
+        .blind-spot {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: var(--text-secondary);
+        }
+
+        .eye-icon {
+            font-size: 2rem;
+            opacity: 0.3;
+        }
+
+        /* 10. SSRF Animation */
+        .anim-ssrf {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            gap: 25px;
+        }
+
+        .network-diagram {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .network-node {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .node-icon {
+            width: 60px;
+            height: 60px;
+            background: #1a1a2a;
+            border: 2px solid #3a3a4a;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .node-icon.attacker {
+            border-color: var(--neon-red);
+            background: rgba(255, 51, 102, 0.1);
+        }
+
+        .node-icon.server {
+            border-color: var(--neon-cyan);
+        }
+
+        .node-icon.internal {
+            border-color: var(--neon-green);
+            background: rgba(0, 255, 136, 0.1);
+        }
+
+        .node-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .ssrf-arrow {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .arrow-line {
+            width: 60px;
+            height: 2px;
+            background: var(--neon-red);
+            position: relative;
+            animation: arrowFlow 1s ease-in-out infinite;
+        }
+
+        .arrow-line::after {
+            content: '';
+            position: absolute;
+            right: -5px;
+            top: -4px;
+            border: 5px solid transparent;
+            border-left-color: var(--neon-red);
+        }
+
+        @keyframes arrowFlow {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        .arrow-label {
+            font-size: 0.65rem;
+            color: var(--neon-red);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .ssrf-request {
+            background: #1a1a2a;
+            border: 1px solid var(--neon-red);
+            border-radius: 8px;
+            padding: 12px 20px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--neon-red);
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .content-slide {
+                flex-direction: column;
+                gap: 30px;
+            }
+
+            .slide-info, .animation-container {
+                max-width: 100%;
+            }
+
+            .animation-container {
+                height: 300px;
+            }
+
+            .title-slide h1 {
+                font-size: 3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-grid"></div>
+    <div class="scanlines"></div>
+    <div class="progress-bar" id="progressBar"></div>
+
+    <div class="container">
+        <div class="slides-wrapper">
+            <!-- Slide 0: Title -->
+            <div class="slide title-slide active" data-index="0">
+                <h1>OWASP</h1>
+                <h2>TOP 10 VULNERABILITIES</h2>
+                <p class="subtitle">An interactive guide to the most critical security risks in web applications</p>
+            </div>
+
+            <!-- Slide 1: Broken Access Control -->
+            <div class="slide content-slide" data-index="1">
+                <span class="slide-number" style="color: var(--neon-red);">01</span>
+                <div class="slide-info">
+                    <h2 class="slide-title" style="color: var(--neon-red);">
+                        <span class="icon" style="background: rgba(255, 51, 102, 0.2);">🚪</span>
+                        Broken Access Control
+                    </h2>
+                    <p class="slide-description">
+                        Occurs when users can act outside their intended permissions. Attackers exploit flaws to access unauthorized functions or data, modify other users' data, or escalate privileges.
+                    </p>
+                    <div class="slide-example">
+                        <div class="slide-example-title">Example Attack</div>
+                        <code style="color: var(--neon-red);">
+                            /api/users/123/profile → /api/users/456/profile<br>
+                            (Accessing another user's data by changing ID)
+                        </code>
+                    </div>
+                </div>
+                <div class="animation-container">
+                    <div class="anim-access">
+                        <div class="hacker-icon">👤</div>
+                        <div class="access-doors">
+                            <div class="door">
+                                <span class="door-label">User Area</span>
+                            </div>
+                            <div class="door unlocked">
+                                <span class="door-label">Admin Panel</span>
+                            </div>
+                            <div class="door unlocked">
+                                <span class="door-label">Database</span>
+                            </div>
+                        </div>
+                        <div class="access-warning">⚠️ UNAUTHORIZED ACCESS DETECTED</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 2: Cryptographic Failures -->
+            <div class="slide content-slide" data-index="2">
+                <span class="slide-number" style="color: var(--neon-cyan);">02</span>
+                <div class="slide-info">
+                    <h2 class="slide-title" style="color: var(--neon-cyan);">
+                        <span class="icon" style="background: rgba(0, 255, 255, 0.2);">🔐</span>
+                        Cryptographic Failures
+                    </h2>
+                    <p class="slide-description">
+                        Failures related to cryptography that expose sensitive data. This includes using weak algorithms, poor key management, transmitting data in clear text, or improper certificate validation.
+                    </p>
+                    <div class="slide-example">
+                        <div class="slide-example-title">Common Mistakes</div>
+                        <code style="color: var(--neon-cyan);">
+                            • Using MD5/SHA1 for passwords<br>
+                            • Hardcoded encryption keys<br>
+                            • HTTP instead of HTTPS
+                        </code>
+                    </div>
+                </div>
+                <div class="animation-container">
+                    <div class="anim-crypto">
+                        <div class="broken-lock">🔓</div>
+                        <div class="crypto-flow">
+                            <div class="crypto-box plaintext">password123</div>
+                            <span class="crypto-arrow">→</span>
+                            <div class="crypto-box weak-encrypted">MD5: 482c8...</div>
+                        </div>
+                        <div class="crypto-flow">
+                            <div class="crypto-box plaintext">Credit Card</div>
+                            <span class="crypto-arrow">→</span>
+                            <div class="crypto-box encrypted">AES-256: ████</div>
+                        </div>
+                        <div style="color: var(--neon-orange); font-size: 0.9rem; margin-top: 10px;">
+                            ⚠️ Weak encryption = Easy to crack
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 3: Injection -->
+            <div class="slide content-slide" data-index="3">
+                <span class="slide-number" style="color: var(--neon-green);">03</span>
+                <div class="slide-info">
+                    <h2 class="slide-title" style="color: var(--neon-green);">
+                        <span class="icon" style="background: rgba(0, 255, 136, 0.2);">💉</span>
+                        Injection
+                    </h2>
+                    <p class="slide-description">
+                        Occurs when untrusted data is sent to an interpreter as part of a command or query. SQL, NoSQL, OS, and LDAP injection can result in data theft, data loss, or complete system compromise.
+                    </p>
+                    <div class="slide-example">
+                        <div class="slide-example-title">SQL Injection</div>
+                        <code style="color: var(--neon-green);">
+                            ' OR '1'='1' --<br>
+                            '; DROP TABLE users; --
+                        </code>
+                    </div>
+                </div>
+                <div class="animation-container">
+                    <div class="anim-injection">
+                        <div class="injection-input">
+                            <div class="injection-text">' OR '1'='1'; DROP TABLE users; --</div>
+                        </div>
+                        <div class="db-container">
+                            <div class="database"></div>
+                            <div class="data-leak">
+                                <div class="leaked-row">admin:admin123</div>
+                                <div class="leaked-row">user:password</div>
+                                <div class="leaked-row">cc:4532-****</div>
+                            </div>
+                        </div>
+                        <div style="color: var(--neon-red); font-size: 0.85rem;">
+                            💀 Database compromised!
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 4: Insecure Design -->
+            <div class="slide content-slide" data-index="4">
+                <span class="slide-number" style="color: var(--neon-yellow);">04</span>
+                <div class="slide-info">
+                    <h2 class="slide-title" style="color: var(--neon-yellow);">
+                        <span class="icon" style="background: rgba(255, 255, 0, 0.2);">📐</span>
+                        Insecure Design
+                    </h2>
+                    <p class="slide-description">
+                        Flaws in the design and architecture of an application that cannot be fixed by proper implementation. This includes missing or ineffective security controls designed into the software.
+                    </p>
+                    <div class="slide-example">
+                        <div class="slide-example-title">Design Flaws</div>
+                        <code style="color: var(--neon-yellow);">
+                            • No rate limiting on login<br>
+                            • Security questions as recovery<br>
+                            • Trust all client input
+                        </code>
+                    </div>
+                </div>
+                <div class="animation-container">
+                    <div class="anim-design">
+                        <div class="blueprint">
+                            <span class="blueprint-icon">📋</span>
+                        </div>
+                        <div class="design-flaws">
+                            <div class="flaw">❌ No Threat Model</div>
+                            <div class="flaw">❌ Missing Controls</div>
+                            <div class="flaw">❌ Weak Architecture</div>
+                        </div>
+                        <div style="color: var(--text-secondary); font-size: 0.85rem; text-align: center;">
+                            Security must be designed in,<br>not bolted on later
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 5: Security Misconfiguration -->
+            <div class="slide content-slide" data-index="5">
+                <span class="slide-number" style="color: var(--neon-orange);">05</span>
+                <div class="slide-info">
+                    <h2 class="slide-title" style="color: var(--neon-orange);">
+                        <span class="icon" style="background: rgba(255, 102, 0, 0.2);">⚙️</span>
+                        Security Misconfiguration
+                    </h2>
+                    <p class="slide-description">
+                        Improperly configured permissions, unnecessary features enabled, default accounts unchanged, overly verbose error messages, or missing security hardening at any level of the stack.
+                    </p>
+                    <div class="slide-example">
+                        <div class="slide-example-title">Common Issues</div>
+                        <code style="color: var(--neon-orange);">
+                            • Default credentials active<br>
+                            • Debug mode in production<br>
+                            • Directory listing enabled
+                        </code>
+                    </div>
+                </div>
+                <div class="animation-container">
+                    <div class="anim-misconfig">
+                        <div class="server-rack">
+                            <div class="server">
+                                <div class="server-light"></div>
+                                <div class="server-light"></div>
+                                <div class="server-light"></div>
+                            </div>
+                            <div class="server misconfigured">
+                                <div class="server-light"></div>
+                                <div class="server-light"></div>
+                                <div class="server-light"></div>
+                            </div>
+                            <div class="server">
+                                <div class="server-light"></div>
+                                <div class="server-light"></div>
+                                <div class="server-light"></div>
+                            </div>
+                        </div>
+                        <div class="config-panel">
+                            <div class="config-line config-bad">DEBUG = true ❌</div>
+                            <div class="config-line config-bad">admin:admin ❌</div>
+                            <div class="config-line config-good">HTTPS = true ✓</div>
+                            <div class="config-line config-bad">CORS = * ❌</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 6: Vulnerable Components -->
+            <div class="slide content-slide" data-index="6">
+                <span class="slide-number" style="color: var(--neon-purple);">06</span>
+                <div class="slide-info">
+                    <h2 class="slide-title" style="color: var(--neon-purple);">
+                        <span class="icon" style="background: rgba(170, 0, 255, 0.2);">📦</span>
+                        Vulnerable & Outdated Components
+                    </h2>
+                    <p class="slide-description">
+                        Using components with known vulnerabilities, such as outdated libraries, frameworks, or other software modules. Attackers scan for known vulnerabilities in popular packages.
+                    </p>
+                    <div class="slide-example">
+                        <div class="slide-example-title">Example CVEs</div>
+                        <code style="color: var(--neon-purple);">
+                            • Log4j (CVE-2021-44228)<br>
+                            • Struts2 (CVE-2017-5638)<br>
+                            • jQuery < 3.5.0
+                        </code>
+                    </div>
+                </div>
+                <div class="animation-container">
+                    <div class="anim-components">
+                        <div class="package-list">
+                            <div class="package">
+                                <span class="package-name">lodash</span>
+                                <span class="package-version">v3.9.0</span>
+                                <span class="package-status status-vulnerable">CVE-2019</span>
+                            </div>
+                            <div class="package">
+                                <span class="package-name">express</span>
+                                <span class="package-version">v4.16.0</span>
+                                <span class="package-status status-outdated">OUTDATED</span>
+                            </div>
+                            <div class="package">
+                                <span class="package-name">react</span>
+                                <span class="package-version">v18.2.0</span>
+                                <span class="package-status status-ok">SECURE</span>
+                            </div>
+                            <div class="package">
+                                <span class="package-name">log4j</span>
+                                <span class="package-version">v2.14.0</span>
+                                <span class="package-status status-vulnerable">CRITICAL</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 7: Authentication Failures -->
+            <div class="slide content-slide" data-index="7">
+                <span class="slide-number" style="color: var(--neon-red);">07</span>
+                <div class="slide-info">
+                    <h2 class="slide-title" style="color: var(--neon-red);">
+                        <span class="icon" style="background: rgba(255, 51, 102, 0.2);">🔑</span>
+                        Identification & Authentication Failures
+                    </h2>
+                    <p class="slide-description">
+                        Weaknesses in confirming user identity, authentication, and session management. This includes weak passwords, credential stuffing, missing MFA, and improper session handling.
+                    </p>
+                    <div class="slide-example">
+                        <div class="slide-example-title">Attack Vectors</div>
+                        <code style="color: var(--neon-red);">
+                            • Credential stuffing<br>
+                            • Brute force attacks<br>
+                            • Session fixation
+                        </code>
+                    </div>
+                </div>
+                <div class="animation-container">
+                    <div class="anim-auth">
+                        <div class="login-form">
+                            <div class="form-field">
+                                <span class="form-label">Username</span>
+                                <input type="text" class="form-input" value="admin" readonly>
+                            </div>
+                            <div class="form-field">
+                                <span class="form-label">Password</span>
+                                <input type="text" class="form-input weak-password" value="123456" readonly>
+                                <div class="password-strength">
+                                    <div class="strength-bar"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="brute-force">
+                            🔄 Brute force: Attempt #<span id="attemptCount">1847</span>
+                        </div>
+                        <div style="color: var(--neon-orange); font-size: 0.8rem;">
+                            ⚠️ No rate limiting • No MFA • Weak password
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 8: Software Integrity -->
+            <div class="slide content-slide" data-index="8">
+                <span class="slide-number" style="color: var(--neon-cyan);">08</span>
+                <div class="slide-info">
+                    <h2 class="slide-title" style="color: var(--neon-cyan);">
+                        <span class="icon" style="background: rgba(0, 255, 255, 0.2);">🔗</span>
+                        Software & Data Integrity Failures
+                    </h2>
+                    <p class="slide-description">
+                        Failures related to code and infrastructure that don't protect against integrity violations. This includes insecure CI/CD pipelines, auto-updates without verification, and untrusted deserialization.
+                    </p>
+                    <div class="slide-example">
+                        <div class="slide-example-title">Attack Scenarios</div>
+                        <code style="color: var(--neon-cyan);">
+                            • SolarWinds supply chain attack<br>
+                            • Compromised npm packages<br>
+                            • Unsigned updates
+                        </code>
+                    </div>
+                </div>
+                <div class="animation-container">
+                    <div class="anim-integrity">
+                        <div class="pipeline">
+                            <div class="pipeline-stage">
+                                <span class="stage-icon">💻</span>
+                                <span>Code</span>
+                            </div>
+                            <span class="pipeline-arrow">→</span>
+                            <div class="pipeline-stage compromised">
+                                <span class="stage-icon">🏗️</span>
+                                <span>Build</span>
+                            </div>
+                            <span class="pipeline-arrow">→</span>
+                            <div class="pipeline-stage">
+                                <span class="stage-icon">🚀</span>
+                                <span>Deploy</span>
+                            </div>
+                        </div>
+                        <div class="integrity-warning">
+                            <span>⚠️</span>
+                            <span>Malicious code injected in build pipeline!</span>
+                        </div>
+                        <div style="color: var(--text-secondary); font-size: 0.8rem; text-align: center;">
+                            Supply chain attacks compromise<br>trusted software sources
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 9: Logging Failures -->
+            <div class="slide content-slide" data-index="9">
+                <span class="slide-number" style="color: var(--neon-green);">09</span>
+                <div class="slide-info">
+                    <h2 class="slide-title" style="color: var(--neon-green);">
+                        <span class="icon" style="background: rgba(0, 255, 136, 0.2);">📊</span>
+                        Security Logging & Monitoring Failures
+                    </h2>
+                    <p class="slide-description">
+                        Insufficient logging, detection, monitoring, and active response allows attackers to further attack systems, maintain persistence, pivot to more systems, and tamper with data.
+                    </p>
+                    <div class="slide-example">
+                        <div class="slide-example-title">Missing Logs</div>
+                        <code style="color: var(--neon-green);">
+                            • No login attempt logging<br>
+                            • Missing audit trails<br>
+                            • No alerting system
+                        </code>
+                    </div>
+                </div>
+                <div class="animation-container">
+                    <div class="anim-logging">
+                        <div class="log-terminal">
+                            <div class="log-line">
+                                <span class="log-timestamp">[10:23:01]</span>
+                                <span class="log-info">[INFO]</span> User login: admin
+                            </div>
+                            <div class="log-line">
+                                <span class="log-timestamp">[10:23:15]</span>
+                                <span class="log-warn">[WARN]</span> Failed login attempt
+                            </div>
+                            <div class="log-line">
+                                <span class="log-timestamp">[10:23:16]</span>
+                                <span class="log-missing">[???]</span> No log entry...
+                            </div>
+                            <div class="log-line">
+                                <span class="log-timestamp">[10:45:00]</span>
+                                <span class="log-error">[ERROR]</span> Data breach detected!
+                            </div>
+                        </div>
+                        <div class="blind-spot">
+                            <span class="eye-icon">👁️</span>
+                            <span>22 minutes of unmonitored activity</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 10: SSRF -->
+            <div class="slide content-slide" data-index="10">
+                <span class="slide-number" style="color: var(--neon-yellow);">10</span>
+                <div class="slide-info">
+                    <h2 class="slide-title" style="color: var(--neon-yellow);">
+                        <span class="icon" style="background: rgba(255, 255, 0, 0.2);">🌐</span>
+                        Server-Side Request Forgery (SSRF)
+                    </h2>
+                    <p class="slide-description">
+                        SSRF flaws occur when a web application fetches a remote resource without validating the user-supplied URL. Attackers can force the server to make requests to internal services.
+                    </p>
+                    <div class="slide-example">
+                        <div class="slide-example-title">SSRF Payload</div>
+                        <code style="color: var(--neon-yellow);">
+                            url=http://localhost:6379/<br>
+                            url=http://169.254.169.254/metadata
+                        </code>
+                    </div>
+                </div>
+                <div class="animation-container">
+                    <div class="anim-ssrf">
+                        <div class="network-diagram">
+                            <div class="network-node">
+                                <div class="node-icon attacker">👤</div>
+                                <span class="node-label">Attacker</span>
+                            </div>
+                            <div class="ssrf-arrow">
+                                <div class="arrow-line"></div>
+                                <span class="arrow-label">malicious URL</span>
+                            </div>
+                            <div class="network-node">
+                                <div class="node-icon server">🖥️</div>
+                                <span class="node-label">Web Server</span>
+                            </div>
+                            <div class="ssrf-arrow">
+                                <div class="arrow-line"></div>
+                                <span class="arrow-label">internal request</span>
+                            </div>
+                            <div class="network-node">
+                                <div class="node-icon internal">🗄️</div>
+                                <span class="node-label">Internal DB</span>
+                            </div>
+                        </div>
+                        <div class="ssrf-request">
+                            GET http://192.168.1.1/admin/secrets
+                        </div>
+                        <div style="color: var(--neon-red); font-size: 0.8rem;">
+                            ⚠️ Bypassing firewall through trusted server
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="nav-container" id="navDots"></div>
+    <div class="nav-arrows">
+        <button class="nav-arrow" id="prevBtn">◀</button>
+        <button class="nav-arrow" id="nextBtn">▶</button>
+    </div>
+
+    <script>
+        const slides = document.querySelectorAll('.slide');
+        const navDotsContainer = document.getElementById('navDots');
+        const progressBar = document.getElementById('progressBar');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        let currentSlide = 0;
+        const totalSlides = slides.length;
+
+        // Create navigation dots
+        for (let i = 0; i < totalSlides; i++) {
+            const dot = document.createElement('div');
+            dot.className = 'nav-dot' + (i === 0 ? ' active' : '');
+            dot.addEventListener('click', () => goToSlide(i));
+            navDotsContainer.appendChild(dot);
+        }
+
+        const navDots = document.querySelectorAll('.nav-dot');
+
+        function updateProgress() {
+            const progress = ((currentSlide + 1) / totalSlides) * 100;
+            progressBar.style.width = progress + '%';
+        }
+
+        function goToSlide(index) {
+            slides[currentSlide].classList.remove('active');
+            navDots[currentSlide].classList.remove('active');
+            
+            currentSlide = index;
+            if (currentSlide < 0) currentSlide = totalSlides - 1;
+            if (currentSlide >= totalSlides) currentSlide = 0;
+            
+            slides[currentSlide].classList.add('active');
+            navDots[currentSlide].classList.add('active');
+            updateProgress();
+        }
+
+        function nextSlide() {
+            goToSlide(currentSlide + 1);
+        }
+
+        function prevSlide() {
+            goToSlide(currentSlide - 1);
+        }
+
+        // Event listeners
+        nextBtn.addEventListener('click', nextSlide);
+        prevBtn.addEventListener('click', prevSlide);
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                prevSlide();
+            }
+        });
+
+        // Touch/swipe support
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+
+        document.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            if (touchStartX - touchEndX > 50) {
+                nextSlide();
+            } else if (touchEndX - touchStartX > 50) {
+                prevSlide();
+            }
+        });
+
+        // Brute force counter animation
+        let attemptCount = 1847;
+        const attemptEl = document.getElementById('attemptCount');
+        setInterval(() => {
+            attemptCount++;
+            if (attemptEl) attemptEl.textContent = attemptCount;
+        }, 100);
+
+        // Initial progress
+        updateProgress();
+    </script>
+</body>
+</html>

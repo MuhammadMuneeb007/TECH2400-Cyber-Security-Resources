@@ -1,0 +1,1934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OWASP Top 10 - Interactive Guide</title>
+    <style>
+        :root {
+            --ios-bg: #f2f2f7;
+            --ios-card: #ffffff;
+            --ios-blue: #007aff;
+            --ios-green: #34c759;
+            --ios-red: #ff3b30;
+            --ios-orange: #ff9500;
+            --ios-yellow: #ffcc00;
+            --ios-purple: #af52de;
+            --ios-pink: #ff2d55;
+            --ios-teal: #5ac8fa;
+            --ios-gray: #8e8e93;
+            --ios-gray2: #aeaeb2;
+            --ios-gray3: #c7c7cc;
+            --ios-gray4: #d1d1d6;
+            --ios-gray5: #e5e5ea;
+            --ios-gray6: #f2f2f7;
+            --text-primary: #1c1c1e;
+            --text-secondary: #3c3c43;
+            --text-tertiary: #8e8e93;
+            --code-bg: #1c1c1e;
+            --code-text: #f8f8f2;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+            background: var(--ios-bg);
+            color: var(--text-primary);
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* iOS-style status bar */
+        .status-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 44px;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            z-index: 1000;
+            border-bottom: 0.5px solid var(--ios-gray4);
+        }
+
+        .status-time {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .status-icons {
+            display: flex;
+            gap: 5px;
+            font-size: 14px;
+        }
+
+        /* Progress bar */
+        .progress-bar {
+            position: fixed;
+            top: 44px;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--ios-blue), var(--ios-purple));
+            z-index: 1001;
+            transition: width 0.3s ease;
+        }
+
+        /* Main container */
+        .container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            padding-top: 44px;
+        }
+
+        .slides-wrapper {
+            position: relative;
+            width: 100%;
+            height: calc(100% - 80px);
+            overflow: hidden;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .slide.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Title slide */
+        .title-slide {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .title-slide h1 {
+            font-size: 4rem;
+            font-weight: 700;
+            color: white;
+            letter-spacing: 0.1em;
+            text-shadow: 0 2px 20px rgba(0,0,0,0.2);
+        }
+
+        .title-slide h2 {
+            font-size: 1.3rem;
+            color: rgba(255,255,255,0.9);
+            margin-top: 15px;
+            font-weight: 500;
+        }
+
+        .title-slide .subtitle {
+            font-size: 1rem;
+            color: rgba(255,255,255,0.7);
+            margin-top: 30px;
+            max-width: 500px;
+        }
+
+        .title-slide .start-btn {
+            margin-top: 40px;
+            padding: 15px 40px;
+            background: white;
+            color: #667eea;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .title-slide .start-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        /* Content slides */
+        .content-slide {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            background: var(--ios-bg);
+        }
+
+        .slide-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 5px 0;
+        }
+
+        .slide-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: white;
+        }
+
+        .slide-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        /* iOS Card styles */
+        .ios-card {
+            background: var(--ios-card);
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .card-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+        }
+
+        .slide-description {
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: var(--text-secondary);
+        }
+
+        /* Animation container */
+        .animation-container {
+            background: var(--ios-card);
+            border-radius: 16px;
+            padding: 20px;
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        /* Code blocks */
+        .code-section {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .code-block {
+            background: var(--code-bg);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 14px;
+            background: #2c2c2e;
+            border-bottom: 1px solid #3a3a3c;
+        }
+
+        .code-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .code-label.vulnerable { color: var(--ios-red); }
+        .code-label.fixed { color: var(--ios-green); }
+
+        .code-dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .code-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .code-dot.red { background: #ff5f56; }
+        .code-dot.yellow { background: #ffbd2e; }
+        .code-dot.green { background: #27ca40; }
+
+        .code-content {
+            padding: 12px;
+            font-family: 'SF Mono', 'Menlo', 'Monaco', monospace;
+            font-size: 0.7rem;
+            line-height: 1.4;
+            color: var(--code-text);
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .code-content .keyword { color: #ff79c6; }
+        .code-content .string { color: #f1fa8c; }
+        .code-content .function { color: #50fa7b; }
+        .code-content .comment { color: #6272a4; }
+        .code-content .variable { color: #8be9fd; }
+
+        /* Solution section */
+        .solution-section {
+            display: none;
+        }
+
+        .solution-section.visible {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .solution-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 12px 20px;
+            background: var(--ios-blue);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        .solution-btn:hover { background: #0056b3; }
+        .solution-btn:active { transform: scale(0.98); }
+        .solution-btn.active { background: var(--ios-green); }
+
+        .fix-explanation {
+            background: rgba(52, 199, 89, 0.1);
+            border-left: 4px solid var(--ios-green);
+            padding: 12px;
+            border-radius: 0 12px 12px 0;
+            margin-top: 12px;
+        }
+
+        .fix-explanation h4 {
+            color: var(--ios-green);
+            font-size: 0.85rem;
+            margin-bottom: 6px;
+        }
+
+        .fix-explanation p {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        /* Navigation */
+        .nav-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 0.5px solid var(--ios-gray4);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            z-index: 100;
+        }
+
+        .nav-dots {
+            display: flex;
+            gap: 8px;
+            flex: 1;
+            justify-content: center;
+        }
+
+        .nav-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--ios-gray3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-dot.active {
+            background: var(--ios-blue);
+            width: 24px;
+            border-radius: 4px;
+        }
+
+        .nav-arrow {
+            width: 44px;
+            height: 44px;
+            border: none;
+            background: var(--ios-gray6);
+            color: var(--ios-blue);
+            border-radius: 22px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .nav-arrow:hover { background: var(--ios-gray5); }
+
+        /* ============================================
+           ANIMATIONS FOR EACH VULNERABILITY
+           ============================================ */
+
+        /* 1. Broken Access Control Animation */
+        .anim-access {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            width: 100%;
+        }
+
+        .access-doors {
+            display: flex;
+            gap: 15px;
+        }
+
+        .door {
+            width: 60px;
+            height: 90px;
+            background: linear-gradient(180deg, #e8e8ed 0%, #d1d1d6 100%);
+            border-radius: 8px 8px 0 0;
+            position: relative;
+            border: 2px solid #c7c7cc;
+        }
+
+        .door::before {
+            content: '';
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--ios-red);
+            box-shadow: 0 0 8px var(--ios-red);
+        }
+
+        .door.unlocked::before {
+            background: var(--ios-green);
+            box-shadow: 0 0 8px var(--ios-green);
+        }
+
+        .door-label {
+            position: absolute;
+            bottom: -22px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.6rem;
+            color: var(--text-tertiary);
+            white-space: nowrap;
+        }
+
+        .hacker-icon {
+            font-size: 2rem;
+            animation: hackerMove 3s ease-in-out infinite;
+        }
+
+        @keyframes hackerMove {
+            0%, 100% { transform: translateX(-80px); }
+            50% { transform: translateX(80px); }
+        }
+
+        .access-warning {
+            color: var(--ios-red);
+            font-family: 'SF Mono', monospace;
+            font-size: 0.75rem;
+            font-weight: 600;
+            animation: blink 1s step-end infinite;
+            background: rgba(255, 59, 48, 0.1);
+            padding: 8px 16px;
+            border-radius: 8px;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* 2. Cryptographic Failures Animation */
+        .anim-crypto {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            width: 100%;
+        }
+
+        .crypto-flow {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .crypto-box {
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-family: 'SF Mono', monospace;
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+
+        .plaintext {
+            background: rgba(255, 59, 48, 0.15);
+            border: 1px solid var(--ios-red);
+            color: var(--ios-red);
+        }
+
+        .encrypted {
+            background: rgba(52, 199, 89, 0.15);
+            border: 1px solid var(--ios-green);
+            color: var(--ios-green);
+        }
+
+        .weak-encrypted {
+            background: rgba(255, 149, 0, 0.15);
+            border: 1px solid var(--ios-orange);
+            color: var(--ios-orange);
+            text-decoration: line-through;
+        }
+
+        .crypto-arrow {
+            color: var(--ios-blue);
+            font-size: 1.2rem;
+            animation: arrowPulse 1s ease-in-out infinite;
+        }
+
+        @keyframes arrowPulse {
+            0%, 100% { opacity: 0.5; transform: translateX(0); }
+            50% { opacity: 1; transform: translateX(3px); }
+        }
+
+        .broken-lock {
+            font-size: 2.5rem;
+            animation: shake 0.5s ease-in-out infinite;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-5deg); }
+            75% { transform: rotate(5deg); }
+        }
+
+        /* 3. Injection Animation */
+        .anim-injection {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            width: 100%;
+        }
+
+        .injection-input {
+            width: 90%;
+            background: var(--ios-gray6);
+            border: 2px solid var(--ios-gray4);
+            border-radius: 10px;
+            padding: 12px;
+            position: relative;
+        }
+
+        .injection-input::before {
+            content: 'Search:';
+            position: absolute;
+            top: -8px;
+            left: 12px;
+            background: var(--ios-card);
+            padding: 0 5px;
+            font-size: 0.7rem;
+            color: var(--text-tertiary);
+        }
+
+        .injection-text {
+            font-family: 'SF Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--ios-red);
+            overflow: hidden;
+            white-space: nowrap;
+            animation: typeInjection 4s steps(40) infinite;
+        }
+
+        @keyframes typeInjection {
+            0%, 100% { width: 0; }
+            50%, 90% { width: 100%; }
+        }
+
+        .db-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .database {
+            width: 60px;
+            height: 80px;
+            background: linear-gradient(180deg, #5ac8fa 0%, #007aff 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .data-leak {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            animation: leakData 2s ease-in-out infinite;
+        }
+
+        @keyframes leakData {
+            0%, 100% { opacity: 0.3; transform: translateX(0); }
+            50% { opacity: 1; transform: translateX(8px); }
+        }
+
+        .leaked-row {
+            background: rgba(255, 59, 48, 0.2);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-family: 'SF Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--ios-red);
+        }
+
+        /* 4. Insecure Design Animation */
+        .anim-design {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            width: 100%;
+        }
+
+        .blueprint {
+            width: 150px;
+            height: 100px;
+            background: rgba(0, 122, 255, 0.1);
+            border: 2px dashed var(--ios-blue);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .blueprint-icon {
+            font-size: 2.5rem;
+            opacity: 0.5;
+        }
+
+        .design-flaws {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .flaw {
+            padding: 8px 12px;
+            background: rgba(255, 59, 48, 0.1);
+            border: 1px solid var(--ios-red);
+            border-radius: 8px;
+            font-size: 0.7rem;
+            color: var(--ios-red);
+            animation: flawPulse 2s ease-in-out infinite;
+        }
+
+        .flaw:nth-child(2) { animation-delay: 0.3s; }
+        .flaw:nth-child(3) { animation-delay: 0.6s; }
+
+        @keyframes flawPulse {
+            0%, 100% { transform: scale(1); opacity: 0.7; }
+            50% { transform: scale(1.05); opacity: 1; }
+        }
+
+        /* 5. Security Misconfiguration Animation */
+        .anim-misconfig {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            width: 100%;
+        }
+
+        .server-rack {
+            display: flex;
+            gap: 12px;
+        }
+
+        .server {
+            width: 50px;
+            height: 70px;
+            background: linear-gradient(180deg, #e5e5ea 0%, #d1d1d6 100%);
+            border-radius: 6px;
+            border: 2px solid #c7c7cc;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 10px;
+            gap: 6px;
+        }
+
+        .server-light {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--ios-green);
+            box-shadow: 0 0 6px var(--ios-green);
+        }
+
+        .server.misconfigured .server-light {
+            background: var(--ios-orange);
+            box-shadow: 0 0 6px var(--ios-orange);
+            animation: blink 0.5s step-end infinite;
+        }
+
+        .config-panel {
+            background: var(--ios-gray6);
+            border: 1px solid var(--ios-gray4);
+            border-radius: 8px;
+            padding: 12px;
+            font-family: 'SF Mono', monospace;
+            font-size: 0.7rem;
+        }
+
+        .config-line { margin: 4px 0; }
+        .config-bad { color: var(--ios-red); }
+        .config-good { color: var(--ios-green); }
+
+        /* 6. Vulnerable Components Animation */
+        .anim-components {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .package-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .package {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            background: var(--ios-gray6);
+            border-radius: 8px;
+            font-size: 0.75rem;
+        }
+
+        .package-info {
+            display: flex;
+            gap: 10px;
+        }
+
+        .package-name { color: var(--text-primary); font-weight: 600; }
+        .package-version { color: var(--text-tertiary); }
+
+        .package-status {
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.65rem;
+            font-weight: 600;
+        }
+
+        .status-vulnerable {
+            background: rgba(255, 59, 48, 0.2);
+            color: var(--ios-red);
+            animation: statusPulse 1s ease-in-out infinite;
+        }
+
+        .status-outdated {
+            background: rgba(255, 149, 0, 0.2);
+            color: var(--ios-orange);
+        }
+
+        .status-ok {
+            background: rgba(52, 199, 89, 0.2);
+            color: var(--ios-green);
+        }
+
+        @keyframes statusPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* 7. Authentication Failures Animation */
+        .anim-auth {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            width: 100%;
+        }
+
+        .login-form {
+            background: var(--ios-gray6);
+            border: 1px solid var(--ios-gray4);
+            border-radius: 12px;
+            padding: 20px;
+            width: 200px;
+        }
+
+        .form-field { margin-bottom: 12px; }
+
+        .form-label {
+            font-size: 0.7rem;
+            color: var(--text-tertiary);
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 8px;
+            background: white;
+            border: 1px solid var(--ios-gray4);
+            border-radius: 6px;
+            font-family: 'SF Mono', monospace;
+            font-size: 0.75rem;
+        }
+
+        .weak-password { border-color: var(--ios-red) !important; }
+
+        .password-strength {
+            height: 4px;
+            background: var(--ios-gray5);
+            border-radius: 2px;
+            margin-top: 6px;
+            overflow: hidden;
+        }
+
+        .strength-bar {
+            height: 100%;
+            width: 20%;
+            background: var(--ios-red);
+            animation: strengthWeak 2s ease-in-out infinite;
+        }
+
+        @keyframes strengthWeak {
+            0%, 100% { width: 20%; background: var(--ios-red); }
+            50% { width: 25%; background: var(--ios-orange); }
+        }
+
+        .brute-force {
+            font-family: 'SF Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--ios-blue);
+            background: rgba(0, 122, 255, 0.1);
+            padding: 8px 16px;
+            border-radius: 8px;
+        }
+
+        /* 8. Software Integrity Animation */
+        .anim-integrity {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            width: 100%;
+        }
+
+        .pipeline {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .pipeline-stage {
+            width: 60px;
+            height: 60px;
+            background: var(--ios-gray6);
+            border: 2px solid var(--ios-gray4);
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            font-size: 0.6rem;
+        }
+
+        .pipeline-stage.compromised {
+            border-color: var(--ios-red);
+            background: rgba(255, 59, 48, 0.1);
+        }
+
+        .stage-icon { font-size: 1.3rem; }
+
+        .pipeline-arrow {
+            color: var(--ios-blue);
+            font-size: 1rem;
+        }
+
+        .integrity-warning {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            background: rgba(255, 59, 48, 0.1);
+            border: 1px solid var(--ios-red);
+            border-radius: 8px;
+            color: var(--ios-red);
+            font-size: 0.75rem;
+            animation: warningPulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes warningPulse {
+            0%, 100% { box-shadow: 0 0 0 rgba(255, 59, 48, 0); }
+            50% { box-shadow: 0 0 15px rgba(255, 59, 48, 0.3); }
+        }
+
+        /* 9. Logging Failures Animation */
+        .anim-logging {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            width: 100%;
+        }
+
+        .log-terminal {
+            width: 95%;
+            background: var(--code-bg);
+            border-radius: 8px;
+            padding: 12px;
+            font-family: 'SF Mono', monospace;
+            font-size: 0.65rem;
+        }
+
+        .log-line {
+            margin: 4px 0;
+            opacity: 0;
+            animation: logAppear 4s ease-in-out infinite;
+        }
+
+        .log-line:nth-child(1) { animation-delay: 0s; }
+        .log-line:nth-child(2) { animation-delay: 0.5s; }
+        .log-line:nth-child(3) { animation-delay: 1s; }
+        .log-line:nth-child(4) { animation-delay: 1.5s; }
+
+        @keyframes logAppear {
+            0%, 100% { opacity: 0; }
+            20%, 80% { opacity: 1; }
+        }
+
+        .log-timestamp { color: #8e8e93; }
+        .log-info { color: #5ac8fa; }
+        .log-warn { color: #ff9500; }
+        .log-error { color: #ff3b30; }
+        .log-missing { color: #ff3b30; font-style: italic; }
+
+        .blind-spot {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-tertiary);
+            font-size: 0.8rem;
+        }
+
+        .eye-icon { font-size: 1.5rem; opacity: 0.3; }
+
+        /* 10. SSRF Animation */
+        .anim-ssrf {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            width: 100%;
+        }
+
+        .network-diagram {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .network-node {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .node-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--ios-gray6);
+            border: 2px solid var(--ios-gray4);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+        }
+
+        .node-icon.attacker {
+            border-color: var(--ios-red);
+            background: rgba(255, 59, 48, 0.1);
+        }
+
+        .node-icon.server { border-color: var(--ios-blue); }
+
+        .node-icon.internal {
+            border-color: var(--ios-green);
+            background: rgba(52, 199, 89, 0.1);
+        }
+
+        .node-label {
+            font-size: 0.65rem;
+            color: var(--text-tertiary);
+        }
+
+        .ssrf-arrow {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .arrow-line {
+            width: 40px;
+            height: 2px;
+            background: var(--ios-red);
+            position: relative;
+            animation: arrowFlow 1s ease-in-out infinite;
+        }
+
+        .arrow-line::after {
+            content: '';
+            position: absolute;
+            right: -4px;
+            top: -3px;
+            border: 4px solid transparent;
+            border-left-color: var(--ios-red);
+        }
+
+        @keyframes arrowFlow {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        .arrow-label {
+            font-size: 0.55rem;
+            color: var(--ios-red);
+            font-family: 'SF Mono', monospace;
+        }
+
+        .ssrf-request {
+            background: var(--ios-gray6);
+            border: 1px solid var(--ios-red);
+            border-radius: 8px;
+            padding: 10px 16px;
+            font-family: 'SF Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--ios-red);
+        }
+
+        /* Scrollbar */
+        .slide::-webkit-scrollbar { width: 6px; }
+        .slide::-webkit-scrollbar-track { background: transparent; }
+        .slide::-webkit-scrollbar-thumb { background: var(--ios-gray3); border-radius: 3px; }
+
+        /* Responsive */
+        @media (max-width: 500px) {
+            .title-slide h1 { font-size: 2.5rem; }
+            .slide { padding: 15px; }
+            .code-content { font-size: 0.65rem; }
+            .network-diagram { gap: 8px; }
+            .node-icon { width: 40px; height: 40px; font-size: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Status Bar -->
+    <div class="status-bar">
+        <span class="status-time" id="statusTime">9:41</span>
+        <span style="font-weight: 600;">OWASP Top 10</span>
+        <div class="status-icons">
+            <span>📶</span>
+            <span>🔋</span>
+        </div>
+    </div>
+
+    <div class="progress-bar" id="progressBar"></div>
+
+    <div class="container">
+        <div class="slides-wrapper">
+            <!-- Slide 0: Title -->
+            <div class="slide title-slide active" data-index="0">
+                <h1>OWASP</h1>
+                <h2>Top 10 Security Vulnerabilities</h2>
+                <p class="subtitle">Interactive guide with animations, vulnerable code examples, and solutions</p>
+                <button class="start-btn" onclick="nextSlide()">Get Started →</button>
+            </div>
+
+            <!-- Slide 1: Broken Access Control -->
+            <div class="slide content-slide" data-index="1">
+                <div class="slide-header">
+                    <div class="slide-number" style="background: var(--ios-red);">01</div>
+                    <h2 class="slide-title">Broken Access Control</h2>
+                </div>
+
+                <div class="ios-card">
+                    <div class="card-title">What is it?</div>
+                    <p class="slide-description">This code lacks proper access control checks. A malicious user can simply change the user_id to "admin" to gain unauthorized access to sensitive data.</p>
+                </div>
+
+                <div class="animation-container">
+                    <div class="anim-access">
+                        <div class="hacker-icon">👤</div>
+                        <div class="access-doors">
+                            <div class="door"><span class="door-label">User Area</span></div>
+                            <div class="door unlocked"><span class="door-label">Admin Panel</span></div>
+                            <div class="door unlocked"><span class="door-label">Database</span></div>
+                        </div>
+                        <div class="access-warning">⚠️ UNAUTHORIZED ACCESS DETECTED</div>
+                    </div>
+                </div>
+
+                <div class="code-section">
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label vulnerable">❌ Vulnerable Code</span>
+                            <div class="code-dots"><span class="code-dot red"></span><span class="code-dot yellow"></span><span class="code-dot green"></span></div>
+                        </div>
+                        <div class="code-content"><span class="keyword">def</span> <span class="function">get_user_data</span>(user_id):
+    <span class="comment"># Vulnerable: Only checks if user_id equals "admin"</span>
+    <span class="keyword">if</span> user_id == <span class="string">"admin"</span>:
+        <span class="keyword">return</span> <span class="string">"Sensitive data for admin user"</span>
+    <span class="keyword">else</span>:
+        <span class="keyword">return</span> <span class="string">"Access Denied"</span>
+
+<span class="function">print</span>(get_user_data(<span class="string">"admin"</span>))  <span class="comment"># Bypassed!</span></div>
+                    </div>
+
+                    <button class="solution-btn" onclick="toggleSolution(this)"><span>💡</span> Show Solution</button>
+
+                    <div class="solution-section">
+                        <div class="fix-explanation">
+                            <h4>✅ How to Fix</h4>
+                            <p>Implement proper authentication and authorization checks using session tokens or role-based access control (RBAC).</p>
+                        </div>
+                        <div class="code-block" style="margin-top: 12px;">
+                            <div class="code-header">
+                                <span class="code-label fixed">✓ Fixed Code</span>
+                                <div class="code-dots"><span class="code-dot red"></span><span class="code-dot yellow"></span><span class="code-dot green"></span></div>
+                            </div>
+                            <div class="code-content"><span class="keyword">def</span> <span class="function">get_user_data</span>(user_id, logged_in_user):
+    <span class="comment"># Simulate role-based access control</span>
+    <span class="keyword">if</span> logged_in_user == <span class="string">"admin"</span>:
+        <span class="keyword">return</span> <span class="string">"Sensitive data for admin user"</span>
+    <span class="keyword">elif</span> logged_in_user == user_id:
+        <span class="keyword">return</span> <span class="string">"Basic user data"</span>
+    <span class="keyword">else</span>:
+        <span class="keyword">return</span> <span class="string">"Access Denied"</span>
+
+<span class="function">print</span>(get_user_data(<span class="string">"admin"</span>, <span class="string">"admin"</span>))</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 2: Cryptographic Failures -->
+            <div class="slide content-slide" data-index="2">
+                <div class="slide-header">
+                    <div class="slide-number" style="background: var(--ios-orange);">02</div>
+                    <h2 class="slide-title">Cryptographic Failures</h2>
+                </div>
+
+                <div class="ios-card">
+                    <div class="card-title">What is it?</div>
+                    <p class="slide-description">The code uses MD5 hashing, which is weak and easily cracked. It also hashes without salt, making it vulnerable to rainbow table attacks.</p>
+                </div>
+
+                <div class="animation-container">
+                    <div class="anim-crypto">
+                        <div class="broken-lock">🔓</div>
+                        <div class="crypto-flow">
+                            <div class="crypto-box plaintext">password123</div>
+                            <span class="crypto-arrow">→</span>
+                            <div class="crypto-box weak-encrypted">MD5: 482c8...</div>
+                        </div>
+                        <div class="crypto-flow">
+                            <div class="crypto-box plaintext">Credit Card</div>
+                            <span class="crypto-arrow">→</span>
+                            <div class="crypto-box encrypted">AES-256: ████</div>
+                        </div>
+                        <div style="color: var(--ios-orange); font-size: 0.8rem;">⚠️ Weak encryption = Easy to crack</div>
+                    </div>
+                </div>
+
+                <div class="code-section">
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label vulnerable">❌ Vulnerable Code</span>
+                            <div class="code-dots"><span class="code-dot red"></span><span class="code-dot yellow"></span><span class="code-dot green"></span></div>
+                        </div>
+                        <div class="code-content"><span class="keyword">import</span> hashlib
+
+<span class="keyword">def</span> <span class="function">store_password</span>(password):
+    <span class="comment"># Vulnerable: Using weak MD5 without salt</span>
+    password_hash = hashlib.md5(password.encode()).hexdigest()
+    <span class="keyword">return</span> password_hash
+
+<span class="function">print</span>(store_password(<span class="string">"user_password"</span>))</div>
+                    </div>
+
+                    <button class="solution-btn" onclick="toggleSolution(this)"><span>💡</span> Show Solution</button>
+
+                    <div class="solution-section">
+                        <div class="fix-explanation">
+                            <h4>✅ How to Fix</h4>
+                            <p>Use a secure hashing algorithm such as bcrypt, which includes salt and is resistant to brute-force attacks.</p>
+                        </div>
+                        <div class="code-block" style="margin-top: 12px;">
+                            <div class="code-header">
+                                <span class="code-label fixed">✓ Fixed Code</span>
+                                <div class="code-dots"><span class="code-dot red"></span><span class="code-dot yellow"></span><span class="code-dot green"></span></div>
+                            </div>
+                            <div class="code-content"><span class="keyword">import</span> bcrypt
+
+<span class="keyword">def</span> <span class="function">store_password</span>(password):
+    <span class="comment"># Use bcrypt for secure hashing with salt</span>
+    salt = bcrypt.gensalt()
+    password_hash = bcrypt.hashpw(password.encode(), salt)
+    <span class="keyword">return</span> password_hash
+
+<span class="function">print</span>(store_password(<span class="string">"user_password"</span>))</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 3: Injection -->
+            <div class="slide content-slide" data-index="3">
+                <div class="slide-header">
+                    <div class="slide-number" style="background: var(--ios-green);">03</div>
+                    <h2 class="slide-title">Injection</h2>
+                </div>
+
+                <div class="ios-card">
+                    <div class="card-title">What is it?</div>
+                    <p class="slide-description">SQL Injection: The code directly inserts user input into an SQL query, allowing attackers to manipulate the query and extract data.</p>
+                </div>
+
+                <div class="animation-container">
+                    <div class="anim-injection">
+                        <div class="injection-input">
+                            <div class="injection-text">' OR '1'='1'; DROP TABLE users; --</div>
+                        </div>
+                        <div class="db-container">
+                            <div class="database">🗄️</div>
+                            <div class="data-leak">
+                                <div class="leaked-row">admin:admin123</div>
+                                <div class="leaked-row">user:password</div>
+                                <div class="leaked-row">cc:4532-****</div>
+                            </div>
+                        </div>
+                        <div style="color: var(--ios-red); font-size: 0.8rem;">💀 Database compromised!</div>
+                    </div>
+                </div>
+
+                <div class="code-section">
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label vulnerable">❌ Vulnerable Code</span>
+                            <div class="code-dots"><span class="code-dot red"></span><span class="code-dot yellow"></span><span class="code-dot green"></span></div>
+                        </div>
+                        <div class="code-content"><span class="keyword">import</span> sqlite3
+
+<span class="keyword">def</span> <span class="function">get_user_info</span>(username):
+    connection = sqlite3.connect(<span class="string">"users.db"</span>)
+    cursor = connection.cursor()
+    <span class="comment"># Vulnerable: Direct string concatenation</span>
+    query = <span class="string">f"SELECT * FROM users WHERE username = '{username}'"</span>
+    cursor.execute(query)
+    <span class="keyword">return</span> cursor.fetchall()</div>
+                    </div>
+
+                    <button class="solution-btn" onclick="toggleSolution(this)"><span>💡</span> Show Solution</button>
+
+                    <div class="solution-section">
+                        <div class="fix-explanation">
+                            <h4>✅ How to Fix</h4>
+                            <p>Use parameterized queries or prepared statements to prevent SQL injection.</p>
+                        </div>
+                        <div class="code-block" style="margin-top: 12px;">
+                            <div class="code-header">
+                                <span class="code-label fixed">✓ Fixed Code</span>
+                                <div class="code-dots"><span class="code-dot red"></span><span class="code-dot yellow"></span><span class="code-dot green"></span></div>
+                            </div>
+                            <div class="code-content"><span class="keyword">import</span> sqlite3
+
+<span class="keyword">def</span> <span class="function">get_user_info</span>(username):
+    connection = sqlite3.connect(<span class="string">"users.db"</span>)
+    cursor = connection.cursor()
+    <span class="comment"># Safe: Using parameterized query</span>
+    query = <span class="string">"SELECT * FROM users WHERE username = ?"</span>
+    cursor.execute(query, (username,))
+    result = cursor.fetchall()
+    connection.close()
+    <span class="keyword">return</span> result
+
+<span class="function">print</span>(get_user_info(<span class="string">"admin"</span>))</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 4: Insecure Design -->
+            <div class="slide content-slide" data-index="4">
+                <div class="slide-header">
+                    <div class="slide-number" style="background: var(--ios-yellow);">04</div>
+                    <h2 class="slide-title">Insecure Design</h2>
+                </div>
+
+                <div class="ios-card">
+                    <div class="card-title">What is it?</div>
+                    <p class="slide-description">The code lacks proper validation and auditing of sensitive actions like payment processing. Attackers could bypass checks or manipulate payment details.</p>
+                </div>
+
+                <div class="animation-container">
+                    <div class="anim-design">
+                        <div class="blueprint"><span class="blueprint-icon">📋</span></div>
+                        <div class="design-flaws">
+                            <div class="flaw">❌ No Threat Model</div>
+                            <div class="flaw">❌ Missing Controls</div>
+                            <div class="flaw">❌ Weak Architecture</div>
+                        </div>
+                        <div style="color: var(--text-tertiary); font-size: 0.8rem; text-align: center;">Security must be designed in, not bolted on later</div>
+                    </div>
+                </div>
+
+                <div class="code-section">
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label vulnerable">❌ Vulnerable Code</span>
+                            <div class="code-dots"><span class="code-dot red"></span><span class="code-dot yellow"></span><span class="code-dot green"></span></div>
+                        </div>
+                        <div class="code-content"><span class="keyword">class</span> <span class="function">PaymentProcessor</span>:
+    <span class="keyword">def</span> <span class="function">process_payment</span>(self, payment_details):
+        <span class="comment"># Vulnerable: No validation or logging</span>
+        <span class="keyword">return</span> <span class="string">"Payment processed"</span>
+
+payment = PaymentProcessor()
+<span class="function">print</span>(payment.process_payment({<span class="string">"amount"</span>: -1000}))</div>
+                    </div>
+
+                    <button class="solution-btn" onclick="toggleSolution(this)"><span>💡</span> Show Solution</button>
+
+                    <div class="solution-section">
+                        <div class="fix-explanation">
+                            <h4>✅ How to Fix</h4>
+                            <p>Implement input validation, logging, and audit mechanisms to ensure integrity and traceability.</p>
+                        </div>
+                        <div class="code-block" style="margin-top: 12px;">
+                            <div class="code-header">
+                                <span class="code-label fixed">✓ Fixed Code</span>
+                                <div class="code-dots"><span class="code-dot red"></span><span class="code-dot yellow"></span><span class="code-dot green"></span></div>
+                            </div>
+                            <div class="code-content"><span class="keyword">import</span> logging
+
+<span class="keyword">class</span> <span class="function">PaymentProcessor</span>:
+    <span class="keyword">def</span> <span class="function">__init__</span>(self):
+        logging.basicConfig(filename=<span class="string">"payment_log.txt"</span>, level=logging.INFO)
+
+    <span class="keyword">def</span> <span class="function">process_payment</span>(self, payment_details):
+        <span class="keyword">if</span> payment_details[<span class="string">"amount"</span>] <= 0:
+            <span class="keyword">return</span> <span class="string">"Invalid amount"</span>
+        logging.info(<span class="string">f"Processing: {payment_details['amount']}"</span>)
+        <span class="keyword">return</span> <span class="string">"Payment processed successfully"</span>
+
+payment = PaymentProcessor()
+<span class="function">print</span>(payment.process_payment({<span class="string">"amount"</span>: 100}))</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 5: Security Misconfiguration -->
+            <div class="slide content-slide" data-index="5">
+                <div class="slide-header">
+                    <div class="slide-number" style="background: var(--ios-purple);">05</div>
+                    <h2 class="slide-title">Security Misconfiguration</h2>
+                </div>
+
+                <div class="ios-card">
+                    <div class="card-title">What is it?</div>
+                    <p class="slide-description">Running an application in debug mode in production exposes sensitive information including stack traces and configuration details.</p>
+                </div>
+
+                <div class="animation-container">
+                    <div class="anim-misconfig">
+                        <div class="server-rack">
+                            <div class="server"><div class="server-light"></div><div class="server-light"></div><div class="server-light"></div></div>
+                            <div class="server misconfigured"><div class="server-light"></div><div class="server-light"></div><div class="server-light"></div></div>
+                            <div class="server"><div class="server-light"></div><div class="server-light"></div><div class="server-light"></div></div>
+                        </div>
+                        <div class="config-panel">
+                            <div class="config-line config-bad">DEBUG = true ❌</div>
+                            <div class="config-line config-bad">admin:admin ❌</div>
+                            <div class="config-line config-good">HTTPS = true ✓</div>
+                            <div class="config-line config-bad">CORS = * ❌</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="code-section">
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label vulnerable">❌ Vulnerable Code</span>
+                            <div class="code-dots"><span class="code-dot red"></span><span class="code-dot yellow"></span><span class="code-dot green"></span></div>
+                        </div>
+                        <div class="code-content"><span class="keyword">from</span> flask <span class="keyword">import</span> Flask
+
+app = Flask(__name__)
+
+<span class="keyword">@</span>app.route(<span class="string">'/'</span>)
+<span class="keyword">def</span> <span class="function">home</span>():
+    <span class="keyword">return</span> <span class="string">"Welcome to the home page!"</span>
+
+<span class="comment"># Vulnerable: Debug mode in production!</span>
+app.run(debug=<span class="variable">True</span>)</div>
+                    </div>
+
+                    <button class="solution-btn" onclick="toggleSolution(this)"><span>💡</span> Show Solution</button>
+
+                    <div class="solution-section">
+                        <div class="fix-explanation">
+                            <h4>✅ How to Fix</h4>
+                            <p>Disable debug mode in production environments and configure proper error handling.</p>
+                        </div>
+                        <div class="code-block" style="margin-top: 12px;">
+                            <div class="code-header">
+                                <span class="code-label fixed">✓ Fixed Code</span>
+                                <div class="code-dots"><span class="code-dot red"></span><span class="code-dot yellow"></span><span class="code-dot green"></span></div>
+                            </div>
+                            <div class="code-content"><span class="keyword">from</span> flask <span class="keyword">import</span> Flask
+
+app = Flask(__name__)
+
+<span class="keyword">@</span>app.route(<span class="string">'/'</span>)
+<span class="keyword">def</span> <span class="function">home</span>():
+    <span class="keyword">return</span> <span class="string">"Welcome to the home page!"</span>
+
+<span class="comment"># Safe: Debug mode disabled</span>
+app.run(debug=<span class="variable">False</span>)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 6: Vulnerable Components -->
+            <div class="slide content-slide" data-index="6">
+                <div class="slide-header">
+                    <div class="slide-number" style="background: var(--ios-pink);">06</div>
+                    <h2 class="slide-title">Vulnerable & Outdated Components</h2>
+                </div>
+
+                <div class="ios-card">
+                    <div class="card-title">What is it?</div>
+                    <p class="slide-description">Using outdated versions of libraries that may have known vulnerabilities. If unpatched, attackers can exploit them.</p>
+                </div>
+
+                <div class="animation-container">
+                    <div class="anim-components">
+                        <div class="package-list">
+                            <div class="package">
+                                <div class="package-info"><span class="package-name">lodash</span><span class="package-version">v3.9.0</span></div>
+                                <span class="package-status status-vulnerable">CVE-2019</span>
+                            </div>
+                            <div class="package">
+                                <div class="package-info"><span class="package-name">express</span><span class="package-version">v4.16.0</span></div>
+                                <span class="package-status status-outdated">OUTDATED</span>
+                            </div>
+                            <div class="package">
+                                <div class="package-info"><span class="package-name">react</span><span class="package-version">v18.2.0</span></div>
+                                <span class="package-status status-ok">SECURE</span>
+                            </div>
+                            <div class="package">
+                                <div class="package-info"><span class="package-name">log4j</span><span class="package-version">v2.14.0</span></div>
+                                <span class="package-status status-vulnerable">CRITICAL</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="code-section">
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label vulnerable">❌ Vulnerable Code</span>
+                            <div class="code-dots"><span class="code-dot red"></span><span class="code-dot yellow"></span><span class="code-dot green"></span></div>
+                        </div>
+                        <div class="code-content"><span class="comment"># requirements.txt with outdated packages</span>
+<span class="comment"># requests==2.5.0  (vulnerable version)</span>
+
+<span class="keyword">import</span> requests  <span class="comment"># Old version with CVEs</span>
+
+<span class="keyword">def</span> <span class="function">get_data_from_api</span>(url):
+    response = requests.get(url)
+    <span class="keyword">return</span> response.json()</div>
+                    </div>
+
+                    <button class="solution-btn" onclick="toggleSolution(this)"><span>💡</span> Show Solution</button>
+
+                    <div class="solution-section">
+                        <div class="fix-explanation">
+                            <h4>✅ How to Fix</h4>
+                            <p>Always use the latest version of libraries. Use pip-audit or safety to check for vulnerabilities.</p>
+                        </div>
+                        <div class="code-block" style="margin-top: 12px;">
+                            <div class="code-header">
+                                <span class="code-label fixed">✓ Fixed Code</span>
+                                <div class="code-dots"><span class="code-dot red"></span><span class="code-dot yellow"></span><span class="code-dot green"></span></div>
+                            </div>
+                            <div class="code-content"><span class="comment"># Keep dependencies updated!</span>
+<span class="comment"># pip install --upgrade requests</span>
+<span class="comment"># pip-audit to check for vulnerabilities</span>
+
+<span class="keyword">import</span> os
+<span class="keyword">import</span> requests  <span class="comment"># Latest secure version</span>
+
+<span class="keyword">def</span> <span class="function">get_data_from_api</span>(url):
+    response = requests.get(url)
+    <span class="keyword">return</span> response.json()
+
+<span class="function">print</span>(get_data_from_api(<span class="string">"http://example.com/api/data"</span>))</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 7: Authentication Failures -->
+            <div class="slide content-slide" data-index="7">
+                <div class="slide-header">
+                    <div class="slide-number" style="background: var(--ios-teal);">07</div>
+                    <h2 class="slide-title">Identification & Authentication Failures</h2>
+                </div>
+
+                <div class="ios-card">
+                    <div class="card-title">What is it?</div>
+                    <p class="slide-description">Hardcoded credentials are insecure. The password is weak and susceptible to brute-force attacks.</p>
+                </div>
+
+                <div class="animation-container">
+                    <div class="anim-auth">
+                        <div class="login-form">
+                            <div class="form-field">
+                                <span class="form-label">Username</span>
+                                <input type="text" class="form-input" value="admin" readonly>
+                            </div>
+                            <div class="form-field">
+                                <span class="form-label">Password</span>
+                                <input type="text" class="form-input weak-password" value="123456" readonly>
+                                <div class="password-strength"><div class="strength-bar"></div></div>
+                            </div>
+                        </div>
+                        <div class="brute-force">🔄 Brute force: Attempt #<span id="attemptCount">1847</span></div>
+                    </div>
+                </div>
+
+                <div class="code-section">
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label vulnerable">❌ Vulnerable Code</span>
+                            <div class="code-dots"><span class="code-dot red"></span><span class="code-dot yellow"></span><span class="code-dot green"></span></div>
+                        </div>
+                        <div class="code-content"><span class="keyword">def</span> <span class="function">authenticate_user</span>(username, password):
+    <span class="comment"># Vulnerable: Hardcoded credentials!</span>
+    <span class="keyword">if</span> username == <span class="string">"admin"</span> <span class="keyword">and</span> password == <span class="string">"admin123"</span>:
+        <span class="keyword">return</span> <span class="string">"Authenticated"</span>
+    <span class="keyword">else</span>:
+        <span class="keyword">return</span> <span class="string">"Authentication Failed"</span></div>
+                    </div>
+
+                    <button class="solution-btn" onclick="toggleSolution(this)"><span>💡</span> Show Solution</button>
+
+                    <div class="solution-section">
+                        <div class="fix-explanation">
+                            <h4>✅ How to Fix</h4>
+                            <p>Use hashed passwords and avoid hardcoding credentials. Implement OAuth or token-based auth.</p>
+                        </div>
+                        <div class="code-block" style="margin-top: 12px;">
+                            <div class="code-header">
+                                <span class="code-label fixed">✓ Fixed Code</span>
+                                <div class="code-dots"><span class="code-dot red"></span><span class="code-dot yellow"></span><span class="code-dot green"></span></div>
+                            </div>
+                            <div class="code-content"><span class="keyword">import</span> bcrypt
+
+<span class="keyword">def</span> <span class="function">authenticate_user</span>(username, password):
+    <span class="comment"># Stored hash from database</span>
+    stored_hash = <span class="string">"$2b$12$EIX9ImA..."</span>
+    
+    <span class="keyword">if</span> bcrypt.checkpw(password.encode(), stored_hash.encode()):
+        <span class="keyword">return</span> <span class="string">"Authenticated"</span>
+    <span class="keyword">else</span>:
+        <span class="keyword">return</span> <span class="string">"Authentication Failed"</span>
+
+<span class="function">print</span>(authenticate_user(<span class="string">"user"</span>, <span class="string">"password123"</span>))</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 8: Software Integrity -->
+            <div class="slide content-slide" data-index="8">
+                <div class="slide-header">
+                    <div class="slide-number" style="background: #5856d6;">08</div>
+                    <h2 class="slide-title">Software & Data Integrity Failures</h2>
+                </div>
+
+                <div class="ios-card">
+                    <div class="card-title">What is it?</div>
+                    <p class="slide-description">The code doesn't verify file integrity. Attackers could replace files with malicious ones, compromising the system.</p>
+                </div>
+
+                <div class="animation-container">
+                    <div class="anim-integrity">
+                        <div class="pipeline">
+                            <div class="pipeline-stage"><span class="stage-icon">💻</span><span>Code</span></div>
+                            <span class="pipeline-arrow">→</span>
+                            <div class="pipeline-stage compromised"><span class="stage-icon">🏗️</span><span>Build</span></div>
+                            <span class="pipeline-arrow">→</span>
+                            <div class="pipeline-stage"><span class="stage-icon">🚀</span><span>Deploy</span></div>
+                        </div>
+                        <div class="integrity-warning"><span>⚠️</span><span>Malicious code injected!</span></div>
+                    </div>
+                </div>
+
+                <div class="code-section">
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label vulnerable">❌ Vulnerable Code</span>
+                            <div class="code-dots"><span class="code-dot red"></span><span class="code-dot yellow"></span><span class="code-dot green"></span></div>
+                        </div>
+                        <div class="code-content"><span class="keyword">import</span> requests
+
+<span class="keyword">def</span> <span class="function">download_file</span>(url):
+    response = requests.get(url)
+    <span class="comment"># Vulnerable: No integrity verification!</span>
+    <span class="keyword">with</span> <span class="function">open</span>(<span class="string">"downloaded.txt"</span>, <span class="string">"wb"</span>) <span class="keyword">as</span> file:
+        file.write(response.content)
+    <span class="keyword">return</span> <span class="string">"File downloaded"</span></div>
+                    </div>
+
+                    <button class="solution-btn" onclick="toggleSolution(this)"><span>💡</span> Show Solution</button>
+
+                    <div class="solution-section">
+                        <div class="fix-explanation">
+                            <h4>✅ How to Fix</h4>
+                            <p>Use cryptographic hashing (SHA256) to verify file integrity before using them.</p>
+                        </div>
+                        <div class="code-block" style="margin-top: 12px;">
+                            <div class="code-header">
+                                <span class="code-label fixed">✓ Fixed Code</span>
+                                <div class="code-dots"><span class="code-dot red"></span><span class="code-dot yellow"></span><span class="code-dot green"></span></div>
+                            </div>
+                            <div class="code-content"><span class="keyword">import</span> requests
+<span class="keyword">import</span> hashlib
+
+<span class="keyword">def</span> <span class="function">download_file</span>(url, expected_hash):
+    response = requests.get(url)
+    file_hash = hashlib.sha256(response.content).hexdigest()
+    
+    <span class="keyword">if</span> file_hash != expected_hash:
+        <span class="keyword">return</span> <span class="string">"File integrity check failed!"</span>
+    
+    <span class="keyword">with</span> <span class="function">open</span>(<span class="string">"downloaded.txt"</span>, <span class="string">"wb"</span>) <span class="keyword">as</span> file:
+        file.write(response.content)
+    <span class="keyword">return</span> <span class="string">"File downloaded successfully"</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 9: Logging Failures -->
+            <div class="slide content-slide" data-index="9">
+                <div class="slide-header">
+                    <div class="slide-number" style="background: #30b0c7;">09</div>
+                    <h2 class="slide-title">Security Logging & Monitoring Failures</h2>
+                </div>
+
+                <div class="ios-card">
+                    <div class="card-title">What is it?</div>
+                    <p class="slide-description">Sensitive actions aren't logged. This makes it impossible to audit actions and detect fraudulent activities.</p>
+                </div>
+
+                <div class="animation-container">
+                    <div class="anim-logging">
+                        <div class="log-terminal">
+                            <div class="log-line"><span class="log-timestamp">[10:23:01]</span> <span class="log-info">[INFO]</span> User login: admin</div>
+                            <div class="log-line"><span class="log-timestamp">[10:23:15]</span> <span class="log-warn">[WARN]</span> Failed login attempt</div>
+                            <div class="log-line"><span class="log-timestamp">[10:23:16]</span> <span class="log-missing">[???]</span> No log entry...</div>
+                            <div class="log-line"><span class="log-timestamp">[10:45:00]</span> <span class="log-error">[ERROR]</span> Data breach detected!</div>
+                        </div>
+                        <div class="blind-spot"><span class="eye-icon">👁️</span><span>22 minutes of unmonitored activity</span></div>
+                    </div>
+                </div>
+
+                <div class="code-section">
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label vulnerable">❌ Vulnerable Code</span>
+                            <div class="code-dots"><span class="code-dot red"></span><span class="code-dot yellow"></span><span class="code-dot green"></span></div>
+                        </div>
+                        <div class="code-content"><span class="keyword">def</span> <span class="function">process_payment</span>(amount, card_number):
+    <span class="comment"># Vulnerable: No logging!</span>
+    <span class="keyword">return</span> <span class="string">"Payment processed"</span>
+
+<span class="function">print</span>(process_payment(50000, <span class="string">"1234-5678-9012-3456"</span>))</div>
+                    </div>
+
+                    <button class="solution-btn" onclick="toggleSolution(this)"><span>💡</span> Show Solution</button>
+
+                    <div class="solution-section">
+                        <div class="fix-explanation">
+                            <h4>✅ How to Fix</h4>
+                            <p>Implement logging of sensitive actions and store logs in a secure, tamper-proof location.</p>
+                        </div>
+                        <div class="code-block" style="margin-top: 12px;">
+                            <div class="code-header">
+                                <span class="code-label fixed">✓ Fixed Code</span>
+                                <div class="code-dots"><span class="code-dot red"></span><span class="code-dot yellow"></span><span class="code-dot green"></span></div>
+                            </div>
+                            <div class="code-content"><span class="keyword">import</span> logging
+
+logging.basicConfig(filename=<span class="string">"payment_log.txt"</span>, level=logging.INFO)
+
+<span class="keyword">def</span> <span class="function">process_payment</span>(amount, card_number):
+    <span class="keyword">if</span> amount > 1000:
+        logging.info(<span class="string">f"High value: {amount} for {card_number}"</span>)
+    <span class="keyword">return</span> <span class="string">"Payment processed"</span>
+
+<span class="function">print</span>(process_payment(1500, <span class="string">"1234567890123456"</span>))</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 10: SSRF -->
+            <div class="slide content-slide" data-index="10">
+                <div class="slide-header">
+                    <div class="slide-number" style="background: #ff6b6b;">10</div>
+                    <h2 class="slide-title">Server-Side Request Forgery (SSRF)</h2>
+                </div>
+
+                <div class="ios-card">
+                    <div class="card-title">What is it?</div>
+                    <p class="slide-description">The code allows any URL, including internal ones, which attackers exploit to access internal systems.</p>
+                </div>
+
+                <div class="animation-container">
+                    <div class="anim-ssrf">
+                        <div class="network-diagram">
+                            <div class="network-node"><div class="node-icon attacker">👤</div><span class="node-label">Attacker</span></div>
+                            <div class="ssrf-arrow"><div class="arrow-line"></div><span class="arrow-label">malicious URL</span></div>
+                            <div class="network-node"><div class="node-icon server">🖥️</div><span class="node-label">Web Server</span></div>
+                            <div class="ssrf-arrow"><div class="arrow-line"></div><span class="arrow-label">internal req</span></div>
+                            <div class="network-node"><div class="node-icon internal">🗄️</div><span class="node-label">Internal DB</span></div>
+                        </div>
+                        <div class="ssrf-request">GET http://192.168.1.1/admin/secrets</div>
+                    </div>
+                </div>
+
+                <div class="code-section">
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label vulnerable">❌ Vulnerable Code</span>
+                            <div class="code-dots"><span class="code-dot red"></span><span class="code-dot yellow"></span><span class="code-dot green"></span></div>
+                        </div>
+                        <div class="code-content"><span class="keyword">import</span> requests
+
+<span class="keyword">def</span> <span class="function">get_internal_data</span>(url):
+    <span class="comment"># Vulnerable: No URL validation!</span>
+    response = requests.get(url)
+    <span class="keyword">return</span> response.text
+
+<span class="function">print</span>(get_internal_data(<span class="string">"http://localhost:6379"</span>))</div>
+                    </div>
+
+                    <button class="solution-btn" onclick="toggleSolution(this)"><span>💡</span> Show Solution</button>
+
+                    <div class="solution-section">
+                        <div class="fix-explanation">
+                            <h4>✅ How to Fix</h4>
+                            <p>Validate and sanitize URLs. Use an allowlist approach for permitted external resources.</p>
+                        </div>
+                        <div class="code-block" style="margin-top: 12px;">
+                            <div class="code-header">
+                                <span class="code-label fixed">✓ Fixed Code</span>
+                                <div class="code-dots"><span class="code-dot red"></span><span class="code-dot yellow"></span><span class="code-dot green"></span></div>
+                            </div>
+                            <div class="code-content"><span class="keyword">import</span> requests
+
+ALLOWED_URLS = [<span class="string">"http://external.com"</span>, <span class="string">"http://example.com"</span>]
+
+<span class="keyword">def</span> <span class="function">get_internal_data</span>(url):
+    <span class="comment"># Safe: Validate against allowlist</span>
+    <span class="keyword">if</span> url <span class="keyword">not in</span> ALLOWED_URLS:
+        <span class="keyword">return</span> <span class="string">"Access denied"</span>
+    
+    response = requests.get(url)
+    <span class="keyword">return</span> response.text
+
+<span class="function">print</span>(get_internal_data(<span class="string">"http://external.com"</span>))</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="nav-container">
+        <button class="nav-arrow" id="prevBtn" onclick="prevSlide()">‹</button>
+        <div class="nav-dots" id="navDots"></div>
+        <button class="nav-arrow" id="nextBtn" onclick="nextSlide()">›</button>
+    </div>
+
+    <script>
+        const slides = document.querySelectorAll('.slide');
+        const navDotsContainer = document.getElementById('navDots');
+        const progressBar = document.getElementById('progressBar');
+        let currentSlide = 0;
+        const totalSlides = slides.length;
+
+        // Update time
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('statusTime').textContent = 
+                `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
+        }
+        updateTime();
+        setInterval(updateTime, 60000);
+
+        // Create nav dots
+        for (let i = 0; i < totalSlides; i++) {
+            const dot = document.createElement('div');
+            dot.className = 'nav-dot' + (i === 0 ? ' active' : '');
+            dot.addEventListener('click', () => goToSlide(i));
+            navDotsContainer.appendChild(dot);
+        }
+
+        const navDots = document.querySelectorAll('.nav-dot');
+
+        function updateProgress() {
+            progressBar.style.width = ((currentSlide + 1) / totalSlides) * 100 + '%';
+        }
+
+        function goToSlide(index) {
+            slides[currentSlide].classList.remove('active');
+            navDots[currentSlide].classList.remove('active');
+            
+            currentSlide = index;
+            if (currentSlide < 0) currentSlide = totalSlides - 1;
+            if (currentSlide >= totalSlides) currentSlide = 0;
+            
+            slides[currentSlide].classList.add('active');
+            navDots[currentSlide].classList.add('active');
+            updateProgress();
+
+            // Reset solutions
+            slides[currentSlide].querySelectorAll('.solution-section').forEach(s => s.classList.remove('visible'));
+            slides[currentSlide].querySelectorAll('.solution-btn').forEach(b => {
+                b.classList.remove('active');
+                b.innerHTML = '<span>💡</span> Show Solution';
+            });
+        }
+
+        function nextSlide() { goToSlide(currentSlide + 1); }
+        function prevSlide() { goToSlide(currentSlide - 1); }
+
+        function toggleSolution(btn) {
+            const section = btn.nextElementSibling;
+            const isVisible = section.classList.contains('visible');
+            
+            if (isVisible) {
+                section.classList.remove('visible');
+                btn.classList.remove('active');
+                btn.innerHTML = '<span>💡</span> Show Solution';
+            } else {
+                section.classList.add('visible');
+                btn.classList.add('active');
+                btn.innerHTML = '<span>✓</span> Hide Solution';
+            }
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); nextSlide(); }
+            else if (e.key === 'ArrowLeft') { prevSlide(); }
+        });
+
+        // Touch support
+        let touchStartX = 0;
+        document.addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].screenX; });
+        document.addEventListener('touchend', (e) => {
+            const diff = touchStartX - e.changedTouches[0].screenX;
+            if (diff > 50) nextSlide();
+            else if (diff < -50) prevSlide();
+        });
+
+        // Brute force counter
+        let attemptCount = 1847;
+        setInterval(() => {
+            attemptCount++;
+            const el = document.getElementById('attemptCount');
+            if (el) el.textContent = attemptCount;
+        }, 100);
+
+        updateProgress();
+    </script>
+</body>
+</html>
